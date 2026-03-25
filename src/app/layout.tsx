@@ -20,11 +20,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const neonAuthClient = authClient as any;
+
   return (
     <html lang="en" className={`${poppins.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="h-full flex flex-col font-sans overflow-hidden">
         <NeonAuthUIProvider
-          authClient={authClient}
+          authClient={neonAuthClient}
           redirectTo="/"
           emailOTP
         >

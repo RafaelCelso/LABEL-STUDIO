@@ -617,11 +617,25 @@ export default function LabelStudio() {
         }
       }
 
-      const onUp = (ev: MouseEvent) => {
-        const cur = guideDrawRef.current
+      const cleanup = () => {
         window.removeEventListener("mousemove", onMove)
         window.removeEventListener("mouseup", onUp)
-        window.removeEventListener("blur", onUp)
+        window.removeEventListener("blur", onBlur)
+      }
+
+      const onBlur = () => {
+        const cur = guideDrawRef.current
+        cleanup()
+        guideDrawRef.current = null
+
+        if (!cur?.active) return
+        setDraftGuideLine(null)
+        setGuideTool("none")
+      }
+
+      const onUp = (ev: MouseEvent) => {
+        const cur = guideDrawRef.current
+        cleanup()
         guideDrawRef.current = null
 
         if (!cur?.active) return
@@ -672,7 +686,7 @@ export default function LabelStudio() {
 
       window.addEventListener("mousemove", onMove)
       window.addEventListener("mouseup", onUp)
-      window.addEventListener("blur", onUp)
+      window.addEventListener("blur", onBlur)
     },
     [canvasZoom, guideTool, labelCanvasPxH, lineThickness, commitEditorSnapshot],
   )
