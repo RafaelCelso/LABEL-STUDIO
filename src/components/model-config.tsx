@@ -18,6 +18,25 @@ const IMPORTER_ORPHAN_VALUE = "__orphan__"
 const projectFieldClass =
   "border border-slate-400 bg-white font-medium text-slate-900 caret-slate-900 shadow-sm placeholder:text-slate-500 focus-visible:border-slate-600 focus-visible:ring-2 focus-visible:ring-slate-400/60 focus-visible:ring-offset-0"
 
+function parseMmYyyyMaskInput(raw: string): { formatted: string; digits: string } {
+  const digits = raw.replace(/\D/g, "").slice(0, 6)
+  let formatted = digits
+  if (digits.length > 2) {
+    formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`
+  }
+  return { formatted, digits }
+}
+
+function monthErrorsForMmYyyy(digits: string): string[] {
+  const errors: string[] = []
+  if (digits.length >= 2) {
+    const month = parseInt(digits.slice(0, 2), 10)
+    if (month > 12) errors.push("Mês inválido (máx. 12)")
+    else if (month === 0) errors.push("Mês inválido (00)")
+  }
+  return errors
+}
+
 interface ModelConfigProps {
   data: LabelData
   onChange: (field: keyof LabelData, value: any) => void
@@ -26,6 +45,7 @@ interface ModelConfigProps {
 
 export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) {
   const [expiryErrors, setExpiryErrors] = useState<string[]>([])
+  const [manufactureDateErrors, setManufactureDateErrors] = useState<string[]>([])
   const [importerRows, setImporterRows] = useState<ImporterListRow[]>([])
   const [importersLoading, setImportersLoading] = useState(true)
 
@@ -266,13 +286,36 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
                 className={cn(projectFieldClass)}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5 flex flex-col">
               <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Fabricação</Label>
               <Input 
                 value={data.manufactureDate} 
-                onChange={(e) => onChange("manufactureDate", e.target.value)} 
-                className={cn(projectFieldClass)}
+                onChange={(e) => {
+                  const { formatted, digits } = parseMmYyyyMaskInput(e.target.value)
+                  setManufactureDateErrors(monthErrorsForMmYyyy(digits))
+                  onChange("manufactureDate", formatted)
+                }}
+                className={cn(
+                  projectFieldClass,
+                  "transition-all",
+                  manufactureDateErrors.length > 0 &&
+                    "border-red-600 bg-red-50 text-red-900 caret-red-900 focus-visible:border-red-600 focus-visible:ring-red-300/60",
+                )}
+                placeholder="MM/AAAA"
+                maxLength={7}
               />
+              {manufactureDateErrors.length > 0 && (
+                <div className="mt-1 flex flex-col gap-0.5">
+                  {manufactureDateErrors.map((err, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] font-bold text-red-700 transition-all animate-in fade-in slide-in-from-top-1 duration-200"
+                    >
+                      {err}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="space-y-1.5 focus-within:ring-0">
               <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Lote</Label>
@@ -309,26 +352,14 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               <Input 
                 value={data.expiryDate} 
                 onChange={(e) => {
-                  const val = e.target.value;
-                  const digits = val.replace(/\D/g, "").slice(0, 6);
-                  let formatted = digits;
-                  if (digits.length > 2) {
-                    formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
-                  }
-                  
-                  // Validation logic
-                  const newErrors: string[] = [];
-                  if (digits.length >= 2) {
-                    const month = parseInt(digits.slice(0, 2));
-                    if (month > 12) newErrors.push("Mês inválido (máx. 12)");
-                    else if (month === 0 && digits.length >= 2) newErrors.push("Mês inválido (00)");
-                  }
+                  const { formatted, digits } = parseMmYyyyMaskInput(e.target.value)
+                  const newErrors: string[] = [...monthErrorsForMmYyyy(digits)]
                   if (digits.length === 6) {
-                    const year = parseInt(digits.slice(2));
-                    if (year < 2026) newErrors.push("O ano deve ser superior a 2025");
+                    const year = parseInt(digits.slice(2), 10)
+                    if (year < 2026) newErrors.push("O ano deve ser superior a 2025")
                   }
-                  setExpiryErrors(newErrors);
-                  onChange("expiryDate", formatted);
+                  setExpiryErrors(newErrors)
+                  onChange("expiryDate", formatted)
                 }}
                 disabled={data.isExpiryIndeterminate}
                 className={cn(

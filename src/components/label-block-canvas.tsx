@@ -11,6 +11,7 @@ import {
 import { Rnd } from "react-rnd";
 import { Upload, Barcode, Trash2 } from "lucide-react";
 import type { LabelData } from "@/types/label";
+import { labelLoteValidadeLine, labelProductTitleLine } from "@/lib/label-field-display";
 import { indicationBodyFromAgeSelect } from "@/constants/age-options";
 import {
   LABEL_PREVIEW_DESIGN_W_PX,
@@ -417,16 +418,14 @@ export function LabelBlockCanvas({
       case "origin":
         return (
           <div className={cn(textSm, "leading-tight text-black")}>
-            <strong className="font-bold">Origem:</strong>{" "}
-            {data.origin || "CHINA"}
+            <strong className="font-bold">Origem:</strong> {data.origin}
           </div>
         );
 
       case "quantity":
         return (
           <div className={cn(textSm, "leading-tight text-black")}>
-            <strong className="font-bold">Quantidade:</strong>{" "}
-            {data.quantity || "1 Conjunto c/ 02 Peças"}
+            <strong className="font-bold">Quantidade:</strong> {data.quantity}
           </div>
         );
 
@@ -434,7 +433,7 @@ export function LabelBlockCanvas({
         return (
           <div className={cn(textSm, "leading-tight text-black")}>
             <strong className="font-bold">Data de Fabricação:</strong>{" "}
-            {data.manufactureDate || "Outubro/2025"}
+            {data.manufactureDate}
           </div>
         );
 
@@ -442,10 +441,7 @@ export function LabelBlockCanvas({
         return (
           <div className={cn(textSm, "leading-tight text-black")}>
             <strong className="font-bold">Lote:</strong>{" "}
-            {data.batch || "202510"} / Data de validade:{" "}
-            {data.isExpiryIndeterminate
-              ? "Indeterminado"
-              : data.expiryDate || "Indeterminado"}
+            {labelLoteValidadeLine(data)}
           </div>
         );
 
@@ -464,9 +460,7 @@ export function LabelBlockCanvas({
               "font-extrabold uppercase leading-tight text-black",
             )}
           >
-            {data.code || "YD-920"} - BRINQUEDO CONJUNTO{" "}
-            {data.productName?.toUpperCase() ||
-              "TOY SET - PLASTIC SPINNING TOP"}
+            {labelProductTitleLine(data)}
           </div>
         );
 
@@ -478,7 +472,7 @@ export function LabelBlockCanvas({
               "font-black uppercase tracking-wider text-black",
             )}
           >
-            MARCA: {data.brand || "ETITOYS"}
+            MARCA: {data.brand}
           </div>
         );
 

@@ -8,6 +8,7 @@ import {
   useCallback,
 } from "react";
 import { LabelData } from "@/types/label";
+import { labelLoteValidadeLine, labelProductTitleLine } from "@/lib/label-field-display";
 import { indicationBodyFromAgeSelect } from "@/constants/age-options";
 import type { LabelBlockLayouts } from "@/types/label-layout";
 import { mergeLabelBlockLayouts } from "@/types/label-layout";
@@ -200,7 +201,12 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: `Origem: ${data.origin || "CHINA"}`,
+                                text: "Origem: ",
+                                bold: true,
+                                size: 14,
+                              }),
+                              new TextRun({
+                                text: data.origin,
                                 size: 14,
                               }),
                             ],
@@ -222,7 +228,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                                 size: 14,
                               }),
                               new TextRun({
-                                text: data.quantity || "1 Conjunto c/ 02 Peças",
+                                text: data.quantity,
                                 size: 14,
                               }),
                             ],
@@ -236,7 +242,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                                 size: 14,
                               }),
                               new TextRun({
-                                text: data.manufactureDate || "Outubro/2025",
+                                text: data.manufactureDate,
                                 size: 14,
                               }),
                             ],
@@ -249,7 +255,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                                 size: 14,
                               }),
                               new TextRun({
-                                text: `${data.batch || "202510"} / Data de validade: ${data.isExpiryIndeterminate ? "Indeterminado" : data.expiryDate || "Indeterminado"}`,
+                                text: labelLoteValidadeLine(data),
                                 size: 14,
                               }),
                             ],
@@ -271,7 +277,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: `${data.code || "YD-920"} - BRINQUEDO CONJUNTO ${data.productName?.toUpperCase() || "TOY SET - PLASTIC SPINNING TOP"}`,
+                                text: labelProductTitleLine(data),
                                 bold: true,
                                 size: 20,
                               }),
@@ -282,7 +288,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                           new Paragraph({
                             children: [
                               new TextRun({
-                                text: `MARCA: ${data.brand || "ETITOYS"}`,
+                                text: `MARCA: ${data.brand}`,
                                 bold: true,
                                 size: 18,
                               }),
