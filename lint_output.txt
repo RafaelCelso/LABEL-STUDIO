@@ -1,0 +1,26 @@
+
+> label-studio@0.1.0 lint
+> eslint
+
+
+C:\Users\rafae\Documents\Rafael\Projetos\Label Studio\src\components\importer-manager.tsx
+  2:10  warning  'Plus' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\rafae\Documents\Rafael\Projetos\Label Studio\src\components\label-preview.tsx
+   33:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+   79:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  107:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  153:13  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+  153:68  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`                                                                                                                                                                                                                          react/no-unescaped-entities
+
+C:\Users\rafae\Documents\Rafael\Projetos\Label Studio\src\components\ui\chat-bubble.tsx
+  18:3  warning  'layout' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\rafae\Documents\Rafael\Projetos\Label Studio\src\components\ui\chat-message-list.tsx
+  15:7  warning  'autoScrollEnabled' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\rafae\Documents\Rafael\Projetos\Label Studio\src\components\ui\textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+✖ 9 problems (3 errors, 6 warnings)
+

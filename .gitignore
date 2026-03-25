@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+# Windows reserved name — breaks PostCSS/Turbopack if created by mistake (e.g. `> nul` in Git Bash)
+/nul
 
 # debug
 npm-debug.log*
