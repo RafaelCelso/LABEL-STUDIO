@@ -3,9 +3,16 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Next.js 16 renamed middleware to proxy.
 // The exported function must be named `proxy`.
-const authMiddlewareFn = auth.middleware({
-  loginUrl: '/auth/sign-in',
-});
+let authMiddlewareFn: ReturnType<typeof auth.middleware> | undefined;
+
+function getAuthMiddlewareFn() {
+  if (!authMiddlewareFn) {
+    authMiddlewareFn = auth.middleware({
+      loginUrl: '/auth/sign-in',
+    });
+  }
+  return authMiddlewareFn;
+}
 
 /** Header que identifica invocações de Server Action (App Router). */
 const NEXT_ACTION_HEADER = 'next-action';
@@ -19,7 +26,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  return authMiddlewareFn(request);
+  return getAuthMiddlewareFn()(request);
 }
 
 export const config = {
