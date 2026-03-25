@@ -11,7 +11,16 @@ export interface LabelData {
   certifierAgeRestriction: string;
   /** Indicação por faixa etária. */
   ageIndication: string;
+  /** Razão social do importador (texto na etiqueta). */
   importer: string;
+  /** UUID do importador na tabela `importers`, quando vindo do cadastro. */
+  importerId: string;
+  /** Linhas de endereço do importador (preenchidas ao selecionar no formulário). */
+  importerAddressStreet: string;
+  importerAddressCityState: string;
+  importerAddressPostal: string;
+  /** Linha SAC na etiqueta (e-mail e telefones do importador selecionado). */
+  importerSacLine: string;
   origin: string;
   /** Tipo de embalagem do produto (selecionável no formulário). */
   packagingType: string;
@@ -44,7 +53,12 @@ export const initialLabelData: LabelData = {
   brand: "ETITOYS",
   certifierAgeRestriction: "3+",
   ageIndication: "3+",
-  importer: "ETILUX IMPORTAÇÃO E DISTRIBUIÇÃO",
+  importer: "",
+  importerId: "",
+  importerAddressStreet: "",
+  importerAddressCityState: "",
+  importerAddressPostal: "",
+  importerSacLine: "",
   origin: "CHINA",
   packagingType: "Caixa de papelão",
   quantity: "1 Conjunto c/ 02 Peç",
@@ -76,6 +90,11 @@ export const emptyLabelData: LabelData = {
   certifierAgeRestriction: "",
   ageIndication: "",
   importer: "",
+  importerId: "",
+  importerAddressStreet: "",
+  importerAddressCityState: "",
+  importerAddressPostal: "",
+  importerSacLine: "",
   origin: "",
   packagingType: "",
   quantity: "",

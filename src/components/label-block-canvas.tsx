@@ -400,15 +400,17 @@ export function LabelBlockCanvas({
           <div className={cn(textSm, "leading-tight text-black")}>
             <div>
               <strong className="font-bold">Importador:</strong>{" "}
-              {data.importer ||
-                "ETILUX IMPORTACAO E DISTRIBUICAO DE ARTIGOS DE CUTELARIA LTDA"}
+              {data.importer}
             </div>
-            <div>
-              Avenida Mississippi, nº 371, Armz 01, Sala 05 - Zona Industrial
-              Norte,
-            </div>
-            <div>Joinville - SC</div>
-            <div>CEP: 89.219-507 / CNPJ: 50.306.471/0008-77</div>
+            {data.importerAddressStreet ? (
+              <div>{data.importerAddressStreet}</div>
+            ) : null}
+            {data.importerAddressCityState ? (
+              <div>{data.importerAddressCityState}</div>
+            ) : null}
+            {data.importerAddressPostal ? (
+              <div>{data.importerAddressPostal}</div>
+            ) : null}
           </div>
         );
 
@@ -450,8 +452,7 @@ export function LabelBlockCanvas({
       case "sac":
         return (
           <div className={cn(textSm, "leading-tight text-black")}>
-            <strong className="font-bold">SAC:</strong> sac@etilux.com.br - 4007
-            1322 - Capitais e grandes cidades - 0800 607 1322 - Demais regiões
+            <strong className="font-bold">SAC:</strong> {data.importerSacLine}
           </div>
         );
 

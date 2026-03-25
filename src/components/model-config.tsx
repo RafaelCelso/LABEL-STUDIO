@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { getImporterById, getImporters, type ImporterListRow } from "@/app/actions/importer"
+import { labelAddressFieldsFromImporter, labelSacLineFromImporter } from "@/lib/importer-address-for-label"
 import { LabelData } from "@/types/label"
 import { cn } from "@/lib/utils"
 import { Input } from "./ui/input"
@@ -10,6 +12,8 @@ import { countries } from "@/constants/countries"
 import { AGE_SELECT_OPTIONS } from "@/constants/age-options"
 import { PACKAGING_TYPE_OPTIONS } from "@/constants/packaging-options"
 
+const IMPORTER_ORPHAN_VALUE = "__orphan__"
+
 /** Fundo e borda dos campos na vista de projeto (contraste com o cinza da área de trabalho). */
 const projectFieldClass =
   "border border-slate-400 bg-white font-medium text-slate-900 caret-slate-900 shadow-sm placeholder:text-slate-500 focus-visible:border-slate-600 focus-visible:ring-2 focus-visible:ring-slate-400/60 focus-visible:ring-offset-0"
@@ -17,10 +21,65 @@ const projectFieldClass =
 interface ModelConfigProps {
   data: LabelData
   onChange: (field: keyof LabelData, value: any) => void
+  onLabelPatch: (patch: Partial<LabelData>) => void
 }
 
-export function ModelConfig({ data, onChange }: ModelConfigProps) {
-  const [expiryErrors, setExpiryErrors] = useState<string[]>([]);
+export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) {
+  const [expiryErrors, setExpiryErrors] = useState<string[]>([])
+  const [importerRows, setImporterRows] = useState<ImporterListRow[]>([])
+  const [importersLoading, setImportersLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      setImportersLoading(true)
+      const rows = await getImporters()
+      if (!cancelled) {
+        setImporterRows(rows)
+        setImportersLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const importerNamesInDb = useMemo(
+    () => new Set(importerRows.map((r) => r.razao_social)),
+    [importerRows]
+  )
+
+  const orphanImporter =
+    data.importer.trim() !== "" && !importerNamesInDb.has(data.importer)
+      ? data.importer
+      : null
+
+  /** Sempre string: evita Select alternar entre não controlado (`undefined`) e controlado. */
+  const importerSelectValue =
+    data.importerId || (orphanImporter ? IMPORTER_ORPHAN_VALUE : "")
+
+  const handleImporterSelect = async (val: string) => {
+    if (!val) {
+      onLabelPatch({
+        importerId: "",
+        importer: "",
+        importerAddressStreet: "",
+        importerAddressCityState: "",
+        importerAddressPostal: "",
+        importerSacLine: "",
+      })
+      return
+    }
+    if (val === IMPORTER_ORPHAN_VALUE) return
+    const full = await getImporterById(val)
+    if (!full) return
+    onLabelPatch({
+      importerId: val,
+      importer: full.razao_social,
+      ...labelAddressFieldsFromImporter(full),
+      importerSacLine: labelSacLineFromImporter(full),
+    })
+  }
 
   return (
     <div className="flex flex-col space-y-8">
@@ -138,15 +197,48 @@ export function ModelConfig({ data, onChange }: ModelConfigProps) {
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Importador</Label>
-            <Select value={data.importer} onValueChange={(val) => onChange("importer", val || "")}>
+            <Select
+              value={importerSelectValue}
+              onValueChange={(val) => void handleImporterSelect(val ?? "")}
+              disabled={importersLoading}
+            >
               <SelectTrigger className={cn("w-full", projectFieldClass)}>
-                <SelectValue placeholder="Selecione..." />
+                <SelectValue
+                  placeholder={
+                    importersLoading
+                      ? "Carregando importadores…"
+                      : importerRows.length === 0
+                        ? "Cadastre um importador em Importador"
+                        : "Selecione…"
+                  }
+                >
+                  {(value) => {
+                    if (value == null || value === "") return null
+                    if (value === IMPORTER_ORPHAN_VALUE) return orphanImporter
+                    const row = importerRows.find((r) => r.id === value)
+                    const name = row?.razao_social ?? data.importer.trim()
+                    return name || null
+                  }}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ETILUX IMPORTAÇÃO E DISTRIBUIÇÃO">ETILUX IMPORTAÇÃO E DISTRIBUIÇÃO</SelectItem>
-                <SelectItem value="OUTRO IMPORTADOR S.A.">OUTRO IMPORTADOR S.A.</SelectItem>
+                {orphanImporter ? (
+                  <SelectItem key="__orphan__" value={IMPORTER_ORPHAN_VALUE}>
+                    {orphanImporter}
+                  </SelectItem>
+                ) : null}
+                {importerRows.map((row) => (
+                  <SelectItem key={row.id} value={row.id}>
+                    {row.razao_social}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+            {!importersLoading && importerRows.length === 0 ? (
+              <p className="text-[10px] text-slate-500">
+                Nenhum importador vinculado à sua conta. Use o menu <strong>Importador</strong> para cadastrar.
+              </p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -540,6 +540,10 @@ export default function LabelStudio() {
     setData((prev) => ({ ...prev, [field]: value }))
   }
 
+  const handleLabelPatch = useCallback((patch: Partial<LabelData>) => {
+    setData((prev) => ({ ...prev, ...patch }))
+  }, [])
+
   const labelCanvasPxH = labelPreviewOuterHeightPx(data.proportion)
 
   const handleGuideCanvasMouseDown = useCallback(
@@ -874,7 +878,7 @@ export default function LabelStudio() {
             style={{ width: formColumnWidth }}
           >
             <div className="p-5">
-              <ModelConfig data={data} onChange={handleChange} />
+              <ModelConfig data={data} onChange={handleChange} onLabelPatch={handleLabelPatch} />
             </div>
           </aside>
 

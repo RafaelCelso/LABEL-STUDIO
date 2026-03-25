@@ -155,35 +155,48 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                                 size: 14,
                               }),
                               new TextRun({
-                                text:
-                                  data.importer ||
-                                  "ETILUX IMPORTACAO E DISTRIBUICAO DE ARTIGOS DE CUTELARIA LTDA",
+                                text: data.importer,
                                 size: 14,
                               }),
                             ],
                             spacing: { before: baseSpacing },
                           }),
-                          new Paragraph({
-                            children: [
-                              new TextRun({
-                                text: "Avenida Mississippi, nº 371, Armz 01, Sala 05 - Zona Industrial Norte,",
-                                size: 14,
-                              }),
-                            ],
-                          }),
-                          new Paragraph({
-                            children: [
-                              new TextRun({ text: "Joinville - SC", size: 14 }),
-                            ],
-                          }),
-                          new Paragraph({
-                            children: [
-                              new TextRun({
-                                text: "CEP: 89.219-507 / CNPJ: 50.306.471/0008-77",
-                                size: 14,
-                              }),
-                            ],
-                          }),
+                          ...(data.importerAddressStreet
+                            ? [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: data.importerAddressStreet,
+                                      size: 14,
+                                    }),
+                                  ],
+                                }),
+                              ]
+                            : []),
+                          ...(data.importerAddressCityState
+                            ? [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: data.importerAddressCityState,
+                                      size: 14,
+                                    }),
+                                  ],
+                                }),
+                              ]
+                            : []),
+                          ...(data.importerAddressPostal
+                            ? [
+                                new Paragraph({
+                                  children: [
+                                    new TextRun({
+                                      text: data.importerAddressPostal,
+                                      size: 14,
+                                    }),
+                                  ],
+                                }),
+                              ]
+                            : []),
                           new Paragraph({
                             children: [
                               new TextRun({
@@ -249,7 +262,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
                                 size: 14,
                               }),
                               new TextRun({
-                                text: "sac@etilux.com.br - 4007 1322 - Capitais e grandes cidades - 0800 607 1322 - Demais regiões",
+                                text: data.importerSacLine,
                                 size: 14,
                               }),
                             ],
