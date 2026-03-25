@@ -8,7 +8,10 @@ import {
   useCallback,
 } from "react";
 import { LabelData } from "@/types/label";
-import { labelLoteValidadeLine, labelProductTitleLine } from "@/lib/label-field-display";
+import {
+  labelLoteValidadeLine,
+  labelProductTitleLine,
+} from "@/lib/label-field-display";
 import { indicationBodyFromAgeSelect } from "@/constants/age-options";
 import type { LabelBlockLayouts } from "@/types/label-layout";
 import { mergeLabelBlockLayouts } from "@/types/label-layout";
