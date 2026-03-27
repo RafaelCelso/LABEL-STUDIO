@@ -9,8 +9,13 @@ import { Input } from "./ui/input"
 import { Label } from "./ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { countries } from "@/constants/countries"
-import { AGE_SELECT_OPTIONS } from "@/constants/age-options"
-import { PACKAGING_TYPE_OPTIONS } from "@/constants/packaging-options"
+import {
+  CERTIFIER_AGE_RESTRICTION_OPTIONS,
+  certifierAgeRestrictionForSelect,
+} from "@/constants/age-options"
+import { LabelAgeIndicationField } from "@/components/label-age-indication-field"
+import { LabelPackagingFields } from "@/components/label-packaging-fields"
+import { LabelProportionFields } from "@/components/label-proportion-fields"
 
 const IMPORTER_ORPHAN_VALUE = "__orphan__"
 
@@ -110,18 +115,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
 
       {/* PROPORÇÃO */}
       <div className="space-y-4">
-        <div className="space-y-2">
-          <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Proporção</Label>
-          <Select value={data.proportion} onValueChange={(val) => onChange("proportion", val || "")}>
-            <SelectTrigger className={cn("w-full", projectFieldClass)}>
-              <SelectValue placeholder="Selecione..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="5:2 (Padrão)">5:2 (Padrão)</SelectItem>
-              <SelectItem value="1:1 (Quadrado)">1:1 (Quadrado)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <LabelProportionFields data={data} onChange={onChange} fieldClassName={projectFieldClass} />
       </div>
 
       {/* IDENTIDADE DO PRODUTO */}
@@ -174,14 +168,14 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               Qual a restrição de idade para seu produto, segundo o órgão certificador?
             </Label>
             <Select
-              value={data.certifierAgeRestriction}
+              value={certifierAgeRestrictionForSelect(data.certifierAgeRestriction)}
               onValueChange={(val) => onChange("certifierAgeRestriction", val || "")}
             >
               <SelectTrigger className={cn("w-full", projectFieldClass)}>
                 <SelectValue placeholder="Selecione..." />
               </SelectTrigger>
               <SelectContent>
-                {AGE_SELECT_OPTIONS.map((opt) => (
+                {CERTIFIER_AGE_RESTRICTION_OPTIONS.map((opt) => (
                   <SelectItem key={opt} value={opt}>
                     {opt}
                   </SelectItem>
@@ -191,18 +185,12 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           </div>
           <div className="space-y-1.5 md:col-span-2">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Indicação</Label>
-            <Select value={data.ageIndication} onValueChange={(val) => onChange("ageIndication", val || "")}>
-              <SelectTrigger className={cn("w-full", projectFieldClass)}>
-                <SelectValue placeholder="Selecione..." />
-              </SelectTrigger>
-              <SelectContent>
-                {AGE_SELECT_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <LabelAgeIndicationField
+              value={data.ageIndication}
+              onChange={(val) => onChange("ageIndication", val)}
+              fieldClassName={projectFieldClass}
+              idPrefix="model-config-indication"
+            />
           </div>
         </div>
       </div>
@@ -327,23 +315,8 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Tipo de Embalagem do Produto</Label>
-            <Select
-              value={data.packagingType}
-              onValueChange={(val) => onChange("packagingType", val || "")}
-            >
-              <SelectTrigger className={cn("w-full", projectFieldClass)}>
-                <SelectValue placeholder="Selecione..." />
-              </SelectTrigger>
-              <SelectContent>
-                {PACKAGING_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt} value={opt}>
-                    {opt}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-4">
+            <LabelPackagingFields data={data} onPatch={onLabelPatch} fieldClassName={projectFieldClass} />
           </div>
           
           <div className="grid grid-cols-2 gap-4">

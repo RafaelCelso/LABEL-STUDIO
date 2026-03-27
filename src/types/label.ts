@@ -22,8 +22,12 @@ export interface LabelData {
   /** Linha SAC na etiqueta (e-mail e telefones do importador selecionado). */
   importerSacLine: string;
   origin: string;
-  /** Tipo de embalagem do produto (selecionável no formulário). */
+  /** Tipo de embalagem do produto (Blister, Color Box, Outro, …). */
   packagingType: string;
+  /** Quando `packagingType` é Color Box: Caixa ou Windowbox. */
+  packagingColorBoxVariant: string;
+  /** Quando `packagingType` é Outro: nome livre da embalagem. */
+  packagingOther: string;
   quantity: string;
   manufactureDate: string;
   batch: string;
@@ -46,12 +50,12 @@ export interface LabelData {
 }
 
 export const initialLabelData: LabelData = {
-  proportion: "5:2 (Padrão)",
+  proportion: "cm:10x4",
   labelBlockLayouts: null,
   productName: "",
   code: "",
   brand: "",
-  certifierAgeRestriction: "3+",
+  certifierAgeRestriction: "0-3",
   ageIndication: "3+",
   importer: "",
   importerId: "",
@@ -60,7 +64,9 @@ export const initialLabelData: LabelData = {
   importerAddressPostal: "",
   importerSacLine: "",
   origin: "",
-  packagingType: "Caixa de papelão",
+  packagingType: "Blister",
+  packagingColorBoxVariant: "",
+  packagingOther: "",
   quantity: "",
   manufactureDate: "",
   batch: "",
@@ -82,7 +88,7 @@ export const initialLabelData: LabelData = {
 };
 
 export const emptyLabelData: LabelData = {
-  proportion: "5:2 (Padrão)",
+  proportion: "cm:10x4",
   labelBlockLayouts: null,
   productName: "",
   code: "",
@@ -97,6 +103,8 @@ export const emptyLabelData: LabelData = {
   importerSacLine: "",
   origin: "",
   packagingType: "",
+  packagingColorBoxVariant: "",
+  packagingOther: "",
   quantity: "",
   manufactureDate: "",
   batch: "",

@@ -14,7 +14,7 @@ import {
 } from "@/lib/label-field-display";
 import { indicationBodyFromAgeSelect } from "@/constants/age-options";
 import type { LabelBlockLayouts } from "@/types/label-layout";
-import { mergeLabelBlockLayouts } from "@/types/label-layout";
+import { labelProportionIsSquare, mergeLabelBlockLayouts } from "@/types/label-layout";
 import { LabelBlockCanvas } from "@/components/label-block-canvas";
 
 import {
@@ -86,7 +86,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
         return blob.arrayBuffer();
       };
 
-      const isSquare = data.proportion === "1:1 (Quadrado)";
+      const isSquare = labelProportionIsSquare(data.proportion);
       const baseSpacing = isSquare ? 300 : 100;
 
       const doc = new Document({

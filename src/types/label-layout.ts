@@ -38,8 +38,57 @@ export type LabelBlockLayouts = Record<LabelBlockId, LabelBlockRect>;
 /** Largura do preview no editor (px) — alinhada a page.tsx e LabelBlockCanvas. */
 export const LABEL_PREVIEW_DESIGN_W_PX = 672;
 
+/** Formato interno: `cm:larguraxaltura` (centímetros), ex.: `cm:10x4`. */
+const CM_PROPORTION_RE = /^cm:([\d.,]+)x([\d.,]+)$/i
+
+function parseCmPart(raw: string): number {
+  const n = parseFloat(raw.replace(",", "."))
+  return Number.isFinite(n) ? n : NaN
+}
+
+/** Lê largura × altura em cm a partir de `cm:WxH` ou retorna `null`. */
+export function parseCmDimensions(proportion: string): { wCm: number; hCm: number } | null {
+  const m = proportion.trim().match(CM_PROPORTION_RE)
+  if (!m) return null
+  const wCm = parseCmPart(m[1])
+  const hCm = parseCmPart(m[2])
+  if (!(wCm > 0) || !(hCm > 0)) return null
+  return { wCm, hCm }
+}
+
+/** Monta o valor persistido em `LabelData.proportion` a partir de cm. */
+export function formatCmProportion(wCm: number, hCm: number): string {
+  const w = Math.round(wCm * 1000) / 1000
+  const h = Math.round(hCm * 1000) / 1000
+  return `cm:${w}x${h}`
+}
+
+/** Presets em cm equivalentes aos formatos antigos 5:2 e 1:1. */
+export const PROPORTION_PRESET_CM = {
+  wide: "cm:10x4",
+  square: "cm:8x8",
+} as const
+
+/** Etiqueta “quadrada” (layout 1:1 / docx com mais espaço vertical). */
+export function labelProportionIsSquare(proportion: string): boolean {
+  if (proportion === "1:1 (Quadrado)") return true
+  if (proportion === "5:2 (Padrão)") return false
+  const d = parseCmDimensions(proportion)
+  if (!d) return false
+  const r = d.wCm / d.hCm
+  return r >= 0.92 && r <= 1.08
+}
+
+function use11Layout(proportion: string): boolean {
+  return labelProportionIsSquare(proportion)
+}
+
 /** Altura total da caixa branca no preview (inclui faixa do rodapé fixo). */
 export function labelPreviewOuterHeightPx(proportion: string): number {
+  const d = parseCmDimensions(proportion)
+  if (d) {
+    return Math.min(600, LABEL_PREVIEW_DESIGN_W_PX * (d.hCm / d.wCm))
+  }
   return proportion === "5:2 (Padrão)"
     ? Math.min(600, LABEL_PREVIEW_DESIGN_W_PX / 1.25)
     : Math.min(600, LABEL_PREVIEW_DESIGN_W_PX);
@@ -58,6 +107,10 @@ export function labelBlockCanvasAreaHeightPx(proportion: string): number {
 
 /** Dimensões de referência (mm) da etiqueta física total (defaults / DOCX). */
 export function getLabelRefMm(proportion: string): { w: number; h: number } {
+  const d = parseCmDimensions(proportion)
+  if (d) {
+    return { w: d.wCm * 10, h: d.hCm * 10 }
+  }
   if (proportion === "1:1 (Quadrado)") return { w: 80, h: 80 };
   return { w: 100, h: 40 };
 }
@@ -326,7 +379,7 @@ export const LABEL_ZONES_1_1: readonly LabelZone[] = [
 ];
 
 export function getLabelZones(proportion: string): readonly LabelZone[] {
-  return proportion === "1:1 (Quadrado)" ? LABEL_ZONES_1_1 : LABEL_ZONES_5_2;
+  return use11Layout(proportion) ? LABEL_ZONES_1_1 : LABEL_ZONES_5_2;
 }
 
 /** Tolerância em % para considerar que um bloco está "dentro" de uma zona. */
@@ -436,7 +489,7 @@ const DEFAULT_1_1: LabelBlockLayouts = {
 export function getDefaultLabelBlockLayouts(
   proportion: string,
 ): LabelBlockLayouts {
-  return proportion === "1:1 (Quadrado)"
+  return use11Layout(proportion)
     ? { ...DEFAULT_1_1 }
     : { ...DEFAULT_5_2 };
 }

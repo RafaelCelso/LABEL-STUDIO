@@ -21,6 +21,7 @@ import { LabelPreview, type LabelPreviewHandle } from "@/components/label-previe
 import { ImporterManager } from "@/components/importer-manager"
 import { Home } from "@/components/home"
 import { ExpandableChatDemo } from "@/components/expandable-chat-demo"
+import { NewProjectWizard } from "@/components/new-project-wizard"
 import { ConfirmationModal } from "@/components/ui/confirmation-modal"
 import { saveProject, updateProject, getProjects, deleteProject } from "@/app/actions/project"
 import { toast } from "sonner"
@@ -76,7 +77,9 @@ export default function LabelStudio() {
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true)
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false)
   const [labelTitle, setLabelTitle] = useState("Renderização Nordic Blueprint")
-  const [currentView, setCurrentView] = useState<"projects" | "importer" | "home">("home")
+  const [currentView, setCurrentView] = useState<"projects" | "importer" | "home" | "newProjectWizard">("home")
+  const [wizardData, setWizardData] = useState<LabelData>(emptyLabelData)
+  const [wizardLabelTitle, setWizardLabelTitle] = useState("")
   const [projects, setProjects] = useState<any[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -488,13 +491,24 @@ export default function LabelStudio() {
 
   const handleNewProject = () => {
     setSelectedProjectId(null)
-    const next = { ...emptyLabelData, proportion: "5:2 (Padrão)" as const }
-    setData(next)
-    resetEditorHistoryForSession(next.labelBlockLayouts ?? null)
-    setLabelTitle("Novo Projeto")
-    setCurrentView("projects")
+    const next = { ...emptyLabelData }
+    setWizardData(next)
+    setWizardLabelTitle("")
+    setCurrentView("newProjectWizard")
     setIsNavDrawerOpen(false)
   }
+
+  const finishWizardToEditor = useCallback(
+    (result: { labelTitle: string; data: LabelData }) => {
+      setSelectedProjectId(null)
+      setLabelTitle(result.labelTitle)
+      setData(result.data)
+      resetEditorHistoryForSession(result.data.labelBlockLayouts ?? null)
+      setCurrentView("projects")
+      setIsNavDrawerOpen(false)
+    },
+    [resetEditorHistoryForSession],
+  )
 
   const handleOpenProject = (project: any) => {
     setLabelTitle(project.name)
@@ -1292,6 +1306,18 @@ export default function LabelStudio() {
           cancelText="Cancelar"
         />
       </div>
+    )
+  }
+
+  /* ─── NEW PROJECT WIZARD (full-screen) ─── */
+  if (currentView === "newProjectWizard") {
+    return (
+      <NewProjectWizard
+        initialLabelTitle={wizardLabelTitle}
+        initialData={wizardData}
+        onCancel={() => setCurrentView("home")}
+        onFinish={(result) => finishWizardToEditor(result)}
+      />
     )
   }
 
