@@ -745,6 +745,7 @@ export default function LabelStudio() {
     if (!selectedProjectId) return;
     const result = await deleteProject(selectedProjectId);
     if (result.success) {
+      toast.success("Projeto excluído com sucesso.");
       loadProjects();
       setCurrentView("home");
       setSelectedProjectId(null);
@@ -756,6 +757,7 @@ export default function LabelStudio() {
     if (!sidebarDeleteProjectId) return;
     const result = await deleteProject(sidebarDeleteProjectId);
     if (result.success) {
+      toast.success("Projeto excluído com sucesso.");
       if (selectedProjectId === sidebarDeleteProjectId) {
         setCurrentView("home");
         setSelectedProjectId(null);
@@ -1063,8 +1065,11 @@ export default function LabelStudio() {
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSidebarDeleteProjectId(project.id);
-                          setSidebarDeleteProjectName(project.name);
+                          setIsNavDrawerOpen(false);
+                          setTimeout(() => {
+                            setSidebarDeleteProjectId(project.id);
+                            setSidebarDeleteProjectName(project.name);
+                          }, 150);
                         }}
                         className="ml-auto shrink-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-all rounded-md p-1 text-foreground/50 hover:text-destructive hover:bg-white/30 hover:border hover:border-white/50 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.6)]"
                         title="Excluir projeto"
