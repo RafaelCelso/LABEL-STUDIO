@@ -20,6 +20,7 @@ interface HomeProps {
   /** Nome ou apelido exibido no cabeçalho (ex.: sessão Neon Auth). */
   displayName?: string;
   lastProject?: HomeProjectPreview;
+  recentProjects?: HomeProjectPreview[];
   onCreateNew: () => void;
   onOpenProject: (project: HomeProjectPreview | string) => void;
   onOpenImporter: () => void;
@@ -28,6 +29,7 @@ interface HomeProps {
 export function Home({
   displayName = "Rafael",
   lastProject,
+  recentProjects = [],
   onCreateNew,
   onOpenProject,
   onOpenImporter,
@@ -186,44 +188,51 @@ export function Home({
             </div>
 
             <div className="auth-frost-panel flex flex-col overflow-hidden rounded-[1.65rem]">
-              <div className="divide-y divide-border/50">
-                {[
-                  { name: "Action Figure Hero", accent: "blue" as const },
-                  { name: "Puzzle Master 1000", accent: "orange" as const },
-                ].map((row, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => onOpenProject(row.name)}
-                    className="group flex w-full cursor-pointer items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-foreground/6"
-                  >
-                    <div className="flex min-w-0 items-center gap-3 overflow-hidden">
-                      <div
-                        className={cn(
-                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-md",
-                          row.accent === "blue"
-                            ? "bg-primary auth-cta-glow"
-                            : "bg-chart-4 shadow-md",
-                        )}
-                      >
-                        <FileText className="h-4 w-4 opacity-95" />
+              {recentProjects.length === 0 ? (
+                <div className="px-4 py-8 text-center">
+                  <FileText className="mx-auto mb-3 h-8 w-8 text-muted-foreground/50" />
+                  <p className="text-sm text-muted-foreground">
+                    Nenhum projeto ainda.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border/50">
+                  {recentProjects.map((project, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => onOpenProject(project)}
+                      className="group flex w-full cursor-pointer items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-foreground/6"
+                    >
+                      <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+                        <div
+                          className={cn(
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-md",
+                            idx === 0
+                              ? "bg-primary auth-cta-glow"
+                              : "bg-chart-4",
+                          )}
+                        >
+                          <FileText className="h-4 w-4 opacity-95" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-foreground">
+                            {project.name}
+                          </span>
+                          {project.updated_at && (
+                            <span className="block text-xs text-muted-foreground">
+                              {new Date(project.updated_at).toLocaleDateString(
+                                "pt-BR",
+                              )}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <span className="truncate text-sm font-medium text-foreground">
-                        {row.name}
-                      </span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
-                  </button>
-                ))}
-              </div>
-              <div className="p-4 pt-2">
-                <button
-                  type="button"
-                  className="w-full rounded-full border border-border/80 bg-background/40 py-3 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground shadow-inner backdrop-blur-md transition-all hover:bg-background/55 hover:text-foreground"
-                >
-                  Ver todos os projetos
-                </button>
-              </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

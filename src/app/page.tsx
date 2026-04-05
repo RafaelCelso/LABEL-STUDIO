@@ -1888,6 +1888,7 @@ export default function LabelStudio() {
                 undefined
               }
               lastProject={projects[0]}
+              recentProjects={projects.slice(1, 6)}
               onCreateNew={handleNewProject}
               onOpenProject={(p) => handleOpenProject(p)}
               onOpenImporter={() => setCurrentView("importer")}
