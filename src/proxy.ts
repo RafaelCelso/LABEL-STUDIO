@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth/server';
-import { NextResponse, type NextRequest } from 'next/server';
+import { auth } from "@/lib/auth/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 // Next.js 16 renamed middleware to proxy.
 // The exported function must be named `proxy`.
@@ -8,21 +8,21 @@ let authMiddlewareFn: ReturnType<typeof auth.middleware> | undefined;
 function getAuthMiddlewareFn() {
   if (!authMiddlewareFn) {
     authMiddlewareFn = auth.middleware({
-      loginUrl: '/auth/sign-in',
+      loginUrl: "/auth/sign-in",
     });
   }
   return authMiddlewareFn;
 }
 
 /** Header que identifica invocações de Server Action (App Router). */
-const NEXT_ACTION_HEADER = 'next-action';
+const NEXT_ACTION_HEADER = "next-action";
 
 export function proxy(request: NextRequest) {
   // As Server Actions fazem POST na URL da página (ex.: `/`). Se o middleware de auth
   // redirecionar para HTML (login), o cliente espera `text/x-component` e falha com
   // "An unexpected response was received from the server."
   // As actions em `app/actions/*` já validam sessão com `auth.getSession()`.
-  if (request.method === 'POST' && request.headers.has(NEXT_ACTION_HEADER)) {
+  if (request.method === "POST" && request.headers.has(NEXT_ACTION_HEADER)) {
     return NextResponse.next();
   }
 
@@ -31,9 +31,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // App shell (início / Label Studio) — exige sessão no edge para evitar corrida com useAuthenticate no cliente
-    '/',
-    '/dashboard/:path*',
-    '/account/:path*',
+    // '/' is now a public landing page — auth check is handled server-side in page.tsx
+    "/app/:path*",
+    "/dashboard/:path*",
+    "/account/:path*",
   ],
 };
