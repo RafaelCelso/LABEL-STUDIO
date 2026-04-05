@@ -7,13 +7,19 @@ import { cn } from "@/lib/utils";
 export function AppGradientLayer({
   idPrefix,
   className,
+  fixed = false,
 }: {
   idPrefix: string;
   className?: string;
+  fixed?: boolean;
 }) {
   return (
     <div
-      className={cn("pointer-events-none absolute inset-0 z-0", className)}
+      className={cn(
+        "pointer-events-none z-0",
+        fixed ? "fixed inset-0" : "absolute inset-0",
+        className,
+      )}
       aria-hidden
     >
       <AuthGradientBackground idPrefix={idPrefix} className="h-full w-full" />

@@ -289,8 +289,7 @@ export const SignInComponent = ({
   };
 
   const signInWithNeonAuth = async (e: string, p: string) => {
-    const origin =
-      typeof window !== "undefined" ? window.location.origin : "";
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     const { error } = await authClient.signIn.email({
       email: e,
       password: p,
@@ -396,7 +395,7 @@ export const SignInComponent = ({
         </div>
         <fieldset
           disabled={modalStatus !== "closed"}
-          className="relative z-10 flex flex-col items-center gap-8 w-[280px] mx-auto p-4"
+          className="relative z-10 flex flex-col items-center gap-8 w-full max-w-xs mx-auto px-5 py-4"
         >
           {/* HEADING */}
           <AnimatePresence mode="wait">
@@ -411,7 +410,7 @@ export const SignInComponent = ({
               >
                 <BlurFade delay={0.25 * 1} className="w-full">
                   <div className="text-center">
-                    <p className="font-serif font-light text-4xl sm:text-5xl md:text-6xl tracking-tight text-foreground whitespace-nowrap">
+                    <p className="font-serif font-light text-3xl sm:text-4xl md:text-5xl tracking-tight text-foreground">
                       Bem-vindo de volta
                     </p>
                   </div>
@@ -443,7 +442,7 @@ export const SignInComponent = ({
                     </GlassButton>
                   </div>
                 </BlurFade>
-                <BlurFade delay={0.25 * 4} className="w-[300px]">
+                <BlurFade delay={0.25 * 4} className="w-full">
                   <div className="flex items-center w-full gap-2 py-2">
                     <hr className="w-full border-border" />
                     <span className="text-xs font-semibold text-muted-foreground">
@@ -465,7 +464,7 @@ export const SignInComponent = ({
               >
                 <BlurFade delay={0} className="w-full">
                   <div className="text-center">
-                    <p className="font-serif font-light text-4xl sm:text-5xl tracking-tight text-foreground whitespace-nowrap">
+                    <p className="font-serif font-light text-3xl sm:text-4xl tracking-tight text-foreground">
                       Digite sua senha
                     </p>
                   </div>
@@ -481,7 +480,7 @@ export const SignInComponent = ({
           </AnimatePresence>
 
           {/* FORM */}
-          <form onSubmit={handleSubmit} className="w-[300px] space-y-6">
+          <form onSubmit={handleSubmit} className="w-full space-y-6">
             <AnimatePresence>
               {authStep !== "password" && (
                 <motion.div

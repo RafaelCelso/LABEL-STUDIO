@@ -36,9 +36,9 @@ export function Home({
 
   return (
     <div className="relative z-10 flex min-h-full w-full flex-col overflow-y-auto custom-scrollbar">
-      <div className="mx-auto w-full max-w-5xl space-y-10 p-8 pb-20">
+      <div className="mx-auto w-full max-w-5xl space-y-10 p-4 sm:p-8 pb-20">
         <div className="space-y-3 text-center sm:text-left">
-          <h2 className="font-serif text-4xl font-light tracking-tight text-foreground sm:text-5xl md:text-6xl">
+          <h2 className="font-serif text-3xl font-light tracking-tight text-foreground sm:text-5xl md:text-6xl">
             Olá, {greetingName}
           </h2>
           <p className="mx-auto max-w-2xl text-base font-medium leading-relaxed text-muted-foreground sm:mx-0">

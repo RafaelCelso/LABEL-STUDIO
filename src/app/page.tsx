@@ -171,6 +171,7 @@ export default function LabelStudio() {
   const [sidebarDeleteProjectName, setSidebarDeleteProjectName] =
     useState<string>("");
   const [isResetLayoutModalOpen, setIsResetLayoutModalOpen] = useState(false);
+  const [isFormPanelOpen, setIsFormPanelOpen] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
@@ -1148,8 +1149,8 @@ export default function LabelStudio() {
         <AppGradientLayer idPrefix="editor-shell" />
 
         {/* Top Bar */}
-        <header className="relative z-30 flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-background/65 px-3 backdrop-blur-xl">
-          {/* Left: back */}
+        <header className="relative z-30 flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border/70 bg-background/65 px-3 backdrop-blur-xl">
+          {/* Left: back + mobile menu */}
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => setCurrentView("home")}
@@ -1158,7 +1159,27 @@ export default function LabelStudio() {
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <div className="mx-1 h-5 w-px bg-border" />
+            <button
+              type="button"
+              onClick={() => setIsNavDrawerOpen(true)}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
+              aria-label="Abrir menu"
+            >
+              <Menu className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsFormPanelOpen((v) => !v)}
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title={isFormPanelOpen ? "Ocultar painel" : "Mostrar painel"}
+            >
+              {isFormPanelOpen ? (
+                <PanelLeftClose className="h-4 w-4" />
+              ) : (
+                <PanelLeftOpen className="h-4 w-4" />
+              )}
+            </button>
+            <div className="mx-1 h-5 w-px bg-border hidden sm:block" />
           </div>
 
           {/* Center: project title */}
@@ -1177,39 +1198,71 @@ export default function LabelStudio() {
             <button
               onClick={() => void handleSaveProject()}
               disabled={isSaving}
-              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 text-xs font-semibold text-primary shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/10 disabled:pointer-events-none disabled:opacity-50"
+              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-2 sm:px-3 text-xs font-semibold text-primary shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/10 disabled:pointer-events-none disabled:opacity-50"
             >
               {isSaving ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <Save className="h-3.5 w-3.5" />
               )}
-              Salvar
+              <span className="hidden sm:inline">Salvar</span>
             </button>
             <button
               onClick={() => void labelPreviewRef.current?.exportDocx()}
-              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 text-xs font-semibold text-emerald-600 shadow-sm transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/10 dark:text-emerald-400"
+              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-2 sm:px-3 text-xs font-semibold text-emerald-600 shadow-sm transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/10 dark:text-emerald-400"
             >
               <Download className="h-3.5 w-3.5" />
-              Exportar
+              <span className="hidden sm:inline">Exportar</span>
             </button>
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 text-xs font-semibold text-destructive shadow-sm transition-colors hover:border-destructive/40 hover:bg-destructive/10"
+              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-2 sm:px-3 text-xs font-semibold text-destructive shadow-sm transition-colors hover:border-destructive/40 hover:bg-destructive/10"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Excluir
+              <span className="hidden sm:inline">Excluir</span>
             </button>
           </div>
         </header>
 
         {/* Body */}
         <div className="relative z-10 flex flex-1 overflow-hidden">
+          {/* Mobile nav drawer overlay (editor) */}
+          {isNavDrawerOpen && (
+            <div className="fixed inset-0 z-40 md:hidden">
+              <div
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                onClick={() => setIsNavDrawerOpen(false)}
+              />
+              <aside className="mobile-drawer-sidebar absolute left-0 top-0 h-full w-72 flex flex-col p-4 z-50">
+                <div className="flex items-center justify-between pb-3">
+                  <div className="flex items-center gap-2.5 px-1">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary drop-shadow-sm">
+                      <SidebarLogoHex className="h-9 w-9" />
+                    </div>
+                    <span className="text-base font-bold leading-tight tracking-tight text-foreground">
+                      LabelStudio Elite
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsNavDrawerOpen(false)}
+                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Fechar menu"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="-mr-1 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+                  <NavItems variant="glass" compact={false} />
+                </div>
+              </aside>
+            </div>
+          )}
           {/* Sidebar colapsável */}
           <aside
             onMouseEnter={() => setIsSidebarCollapsed(false)}
             onMouseLeave={() => setIsSidebarCollapsed(true)}
-            className={`liquid-glass-sidebar flex h-full shrink-0 flex-col transition-all duration-300 ${isSidebarCollapsed ? "w-16 p-2" : "w-64 p-4"}`}
+            className={`mobile-drawer-sidebar hidden md:flex h-full shrink-0 flex-col transition-all duration-300 ${isSidebarCollapsed ? "w-16 p-2" : "w-64 p-4"}`}
           >
             <div
               className={`flex items-center pb-3 ${isSidebarCollapsed ? "justify-center" : "gap-2.5 px-1"}`}
@@ -1235,8 +1288,8 @@ export default function LabelStudio() {
             </div>
           </aside>
           <aside
-            className="flex shrink-0 flex-col overflow-y-auto border-r border-border/60 bg-background/50 backdrop-blur-xl"
-            style={{ width: formColumnWidth }}
+            className={`flex shrink-0 flex-col overflow-y-auto border-r border-border/60 bg-background/50 backdrop-blur-xl transition-all duration-300 ${isFormPanelOpen ? "" : "hidden"}`}
+            style={{ width: isFormPanelOpen ? formColumnWidth : 0 }}
           >
             <div className="p-5">
               <ModelConfig
@@ -1248,14 +1301,16 @@ export default function LabelStudio() {
           </aside>
 
           {/* Divisor redimensionável */}
-          <button
-            type="button"
-            aria-label="Redimensionar painel do formulário"
-            onMouseDown={startResizeFormColumn}
-            className="group relative z-10 w-1.5 shrink-0 cursor-col-resize border-0 bg-transparent p-0 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary/40"
-          >
-            <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border group-hover:bg-muted-foreground/40" />
-          </button>
+          {isFormPanelOpen && (
+            <button
+              type="button"
+              aria-label="Redimensionar painel do formulário"
+              onMouseDown={startResizeFormColumn}
+              className="group relative z-10 w-1.5 shrink-0 cursor-col-resize border-0 bg-transparent p-0 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border group-hover:bg-muted-foreground/40" />
+            </button>
+          )}
 
           {/* Canvas: fundo em grade + zoom + pan */}
           <main
@@ -1735,11 +1790,70 @@ export default function LabelStudio() {
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-card font-sans text-foreground">
       <AppGradientLayer idPrefix="app-shell" />
 
+      {/* Mobile top bar */}
+      <header className="relative z-30 flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-background/65 px-3 backdrop-blur-xl md:hidden">
+        <button
+          type="button"
+          onClick={() => setIsNavDrawerOpen(true)}
+          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          aria-label="Abrir menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <SidebarLogoHex className="h-6 w-6 text-primary" />
+          <span className="text-sm font-bold text-foreground">
+            LabelStudio Elite
+          </span>
+        </div>
+        <div className="glass-user-wrap rounded-xl p-0.5 [&_*]:cursor-pointer">
+          <UserButton size="icon" />
+        </div>
+      </header>
+
+      {/* Mobile nav drawer overlay */}
+      {isNavDrawerOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setIsNavDrawerOpen(false)}
+          />
+          <aside className="mobile-drawer-sidebar absolute left-0 top-0 h-full w-72 flex flex-col p-4 z-50">
+            <div className="flex items-center justify-between pb-3">
+              <div className="flex items-center gap-2.5 px-1">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary drop-shadow-sm">
+                  <SidebarLogoHex className="h-9 w-9" />
+                </div>
+                <span className="text-base font-bold leading-tight tracking-tight text-foreground">
+                  LabelStudio Elite
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNavDrawerOpen(false)}
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Fechar menu"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="-mr-1 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+              <NavItems variant="glass" compact={false} />
+            </div>
+            <div className="mt-4 flex shrink-0 items-center border-t border-border/40 pt-4">
+              <div className="glass-user-wrap rounded-xl p-0.5 [&_*]:cursor-pointer">
+                <UserButton size="icon" />
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
       <div className="relative z-10 flex min-h-0 flex-1 overflow-hidden">
         <aside
           onMouseEnter={() => setIsSidebarCollapsed(false)}
           onMouseLeave={() => setIsSidebarCollapsed(true)}
-          className={`liquid-glass-sidebar flex h-full shrink-0 flex-col transition-all duration-300 ${isSidebarCollapsed ? "w-16 p-2" : "w-64 p-4"}`}
+          className={`mobile-drawer-sidebar hidden md:flex h-full shrink-0 flex-col transition-all duration-300 ${isSidebarCollapsed ? "w-16 p-2" : "w-64 p-4"}`}
         >
           <div
             className={`flex items-center pb-3 ${isSidebarCollapsed ? "justify-center" : "gap-2.5 px-1"}`}

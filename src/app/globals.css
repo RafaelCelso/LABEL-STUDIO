@@ -328,7 +328,7 @@
   .auth-frost-panel {
     position: relative;
     overflow: hidden;
-    border-radius: 1.65rem;
+    border-radius: 1.25rem;
     background: linear-gradient(
       -75deg,
       oklch(from var(--background) l c h / 8%),
@@ -345,10 +345,16 @@
     -webkit-backdrop-filter: blur(14px) saturate(165%);
   }
 
+  @media (min-width: 640px) {
+    .auth-frost-panel {
+      border-radius: 1.65rem;
+    }
+  }
+
   .auth-frost-panel-strong {
     position: relative;
     overflow: hidden;
-    border-radius: 1.65rem;
+    border-radius: 1.25rem;
     background: linear-gradient(
       -75deg,
       oklch(from var(--background) l c h / 12%),
@@ -363,6 +369,29 @@
       0 0 0.12em 0.28em inset oklch(from var(--background) l c h / 22%);
     backdrop-filter: blur(18px) saturate(175%);
     -webkit-backdrop-filter: blur(18px) saturate(175%);
+  }
+
+  @media (min-width: 640px) {
+    .auth-frost-panel-strong {
+      border-radius: 1.65rem;
+    }
+  }
+
+  /** Drawer mobile: fundo mais sólido para melhor contraste */
+  .mobile-drawer-sidebar {
+    background: linear-gradient(
+      135deg,
+      oklch(from var(--background) l c h / 88%) 0%,
+      oklch(from var(--background) l c h / 82%) 50%,
+      oklch(from var(--background) l c h / 86%) 100%
+    );
+    border-right: 1px solid oklch(from var(--foreground) l c h / 18%);
+    box-shadow:
+      8px 0 40px -8px rgba(0, 0, 0, 0.35),
+      inset 0 0 0 1px oklch(from var(--foreground) l c h / 10%),
+      inset 0 1px 0 0 oklch(from var(--background) l c h / 55%);
+    backdrop-filter: blur(32px) saturate(160%);
+    -webkit-backdrop-filter: blur(32px) saturate(160%);
   }
 
   .auth-cta-glow {

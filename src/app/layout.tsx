@@ -28,7 +28,7 @@ export default function RootLayout({
       className={`${poppins.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="h-full flex flex-col font-sans overflow-hidden">
+      <body className="h-full flex flex-col font-sans overflow-x-hidden">
         <NeonAuthUIProvider authClient={neonAuthClient} redirectTo="/" emailOTP>
           {children}
         </NeonAuthUIProvider>

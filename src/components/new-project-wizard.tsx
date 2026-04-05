@@ -60,7 +60,7 @@ const IMPORTER_ORPHAN_VALUE = "__orphan__";
 const PROJECT_NAME_REQUIRED_MSG = "Informe o nome do projeto.";
 
 /** Cartão das etapas — alinhado ao vidro das telas de auth */
-const STEP_CARD = "auth-frost-panel p-8 sm:p-10";
+const STEP_CARD = "auth-frost-panel p-5 sm:p-8 md:p-10";
 
 const projectFieldClass =
   "rounded-xl border border-input bg-background font-medium text-foreground caret-foreground shadow-sm placeholder:text-muted-foreground transition-[box-shadow,border-color] focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-0";
@@ -178,10 +178,7 @@ export function NewProjectWizard({
   const [data, setData] = useState<LabelData>(initialData);
 
   const [sectionIdx, setSectionIdx] = useState(() =>
-    Math.min(
-      Math.max(0, initialSectionIdx),
-      SECTIONS.length - 1,
-    ),
+    Math.min(Math.max(0, initialSectionIdx), SECTIONS.length - 1),
   );
   const [isSavingProgress, setIsSavingProgress] = useState(false);
 
@@ -223,10 +220,7 @@ export function NewProjectWizard({
     if (!previewModalOpen) return;
     const applyOuterCap = () => {
       setPreviewModalMaxOuterPx(
-        Math.max(
-          560,
-          Math.min(960, Math.floor(window.innerHeight * 0.82)),
-        ),
+        Math.max(560, Math.min(960, Math.floor(window.innerHeight * 0.82))),
       );
     };
     applyOuterCap();
@@ -373,7 +367,11 @@ export function NewProjectWizard({
           );
           return;
         }
-        onFinish({ labelTitle: trimmed, data: clean, projectId: draftProjectId });
+        onFinish({
+          labelTitle: trimmed,
+          data: clean,
+          projectId: draftProjectId,
+        });
       } else {
         const r = await saveProject(trimmed, clean);
         if (!r.success) {
@@ -398,7 +396,7 @@ export function NewProjectWizard({
       className="relative h-dvh w-full overflow-x-hidden overflow-y-auto bg-card text-foreground"
       style={{ WebkitOverflowScrolling: "touch" }}
     >
-      <AppGradientLayer idPrefix="wizard" />
+      <AppGradientLayer idPrefix="wizard" fixed />
       <header className="sticky top-0 z-20 border-b border-border/70 bg-background/60 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-5 py-3.5 sm:px-6">
           <Button
@@ -425,10 +423,7 @@ export function NewProjectWizard({
 
       {previewModalOpen && typeof document !== "undefined"
         ? createPortal(
-            <div
-              className="fixed inset-0 z-[300]"
-              role="presentation"
-            >
+            <div className="fixed inset-0 z-[300]" role="presentation">
               <button
                 type="button"
                 className="absolute inset-0 z-0 cursor-default border-0 bg-black/45 p-0 backdrop-blur-sm"
@@ -486,7 +481,7 @@ export function NewProjectWizard({
           )
         : null}
 
-      <main className="relative z-10 mx-auto max-w-5xl px-5 pb-16 pt-8 sm:px-6 sm:pt-10">
+      <main className="relative z-10 mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6 sm:pt-10">
         <div className="mb-8 sm:mb-10">
           <h1 className="text-balance font-serif text-3xl font-light tracking-tight text-foreground sm:text-4xl md:text-5xl">
             {section.title}
