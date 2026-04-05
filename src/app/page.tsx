@@ -1736,17 +1736,27 @@ export default function LabelStudio() {
       <AppGradientLayer idPrefix="app-shell" />
 
       <div className="relative z-10 flex min-h-0 flex-1 overflow-hidden">
-        <aside className="liquid-glass-sidebar flex h-full w-64 shrink-0 flex-col p-4">
-          <div className="flex items-center gap-2.5 px-1 pb-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary drop-shadow-sm">
-              <SidebarLogoHex className="h-9 w-9" />
-            </div>
-            <span className="text-base font-bold leading-tight tracking-tight text-foreground">
-              LabelStudio Elite
-            </span>
+        <aside
+          onMouseEnter={() => setIsSidebarCollapsed(false)}
+          onMouseLeave={() => setIsSidebarCollapsed(true)}
+          className={`liquid-glass-sidebar flex h-full shrink-0 flex-col transition-all duration-300 ${isSidebarCollapsed ? "w-16 p-2" : "w-64 p-4"}`}
+        >
+          <div
+            className={`flex items-center pb-3 ${isSidebarCollapsed ? "justify-center" : "gap-2.5 px-1"}`}
+          >
+            {!isSidebarCollapsed && (
+              <>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary drop-shadow-sm">
+                  <SidebarLogoHex className="h-9 w-9" />
+                </div>
+                <span className="text-base font-bold leading-tight tracking-tight text-foreground">
+                  LabelStudio Elite
+                </span>
+              </>
+            )}
           </div>
           <div className="-mr-1 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
-            <NavItems variant="glass" />
+            <NavItems variant="glass" compact={isSidebarCollapsed} />
           </div>
           <div className="mt-4 flex shrink-0 items-center border-t border-border/40 pt-4">
             <div className="glass-user-wrap rounded-xl p-0.5 [&_*]:cursor-pointer">
