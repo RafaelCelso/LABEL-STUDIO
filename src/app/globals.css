@@ -129,6 +129,13 @@
   html {
     @apply font-sans;
   }
+
+  /* Force pointer cursor on UserButton dropdown items */
+  [data-radix-popper-content-wrapper] [role="menuitem"],
+  [data-radix-popper-content-wrapper] button,
+  [data-radix-popper-content-wrapper] a {
+    cursor: pointer !important;
+  }
 }
 
 @layer utilities {
