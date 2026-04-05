@@ -1139,3 +1139,539 @@ export default function LabelStudio() {
       </nav>
     );
   };
+
+  // ─── Main render ────────────────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
+      {/* Gradient background layer */}
+      <AppGradientLayer idPrefix="app" />
+
+      {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
+      <aside
+        className={`hidden md:flex flex-col shrink-0 h-full z-20 transition-all duration-300 liquid-glass-sidebar ${
+          isSidebarCollapsed ? "w-16" : "w-60"
+        }`}
+      >
+        {/* Logo */}
+        <div
+          className={`flex items-center gap-2.5 px-3 py-4 border-b border-foreground/10 ${
+            isSidebarCollapsed ? "justify-center" : ""
+          }`}
+        >
+          <SidebarLogoHex className="h-7 w-7 shrink-0 text-foreground" />
+          {!isSidebarCollapsed && (
+            <span className="text-sm font-semibold tracking-tight truncate">
+              LabelStudio Elite
+            </span>
+          )}
+        </div>
+
+        {/* Nav */}
+        <div className="flex-1 overflow-y-auto py-3 px-2">
+          <NavItems compact={isSidebarCollapsed} variant="glass" />
+        </div>
+
+        {/* Collapse toggle */}
+        <div className="border-t border-foreground/10 p-2">
+          <button
+            type="button"
+            onClick={() => setIsSidebarCollapsed((v) => !v)}
+            className="glass-nav-btn flex w-full items-center justify-center rounded-xl p-2 text-foreground/70 hover:text-foreground transition-colors"
+            title={isSidebarCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen className="h-5 w-5" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+
+        {/* User */}
+        <div className="border-t border-foreground/10 p-3 glass-user-wrap">
+          <div
+            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "gap-2"}`}
+          >
+            <UserButton />
+            {!isSidebarCollapsed && (
+              <span className="text-xs text-muted-foreground truncate">
+                Conta
+              </span>
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Mobile nav drawer ───────────────────────────────────────────────── */}
+      {isNavDrawerOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsNavDrawerOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="absolute left-0 top-0 h-full w-72 mobile-drawer-sidebar flex flex-col">
+            <div className="flex items-center justify-between px-4 py-4 border-b border-foreground/10">
+              <div className="flex items-center gap-2.5">
+                <SidebarLogoHex className="h-6 w-6 text-foreground" />
+                <span className="text-sm font-semibold">LabelStudio Elite</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsNavDrawerOpen(false)}
+                className="text-foreground/60 hover:text-foreground"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto py-3 px-3">
+              <NavItems variant="glass" />
+            </div>
+            <div className="border-t border-foreground/10 p-3">
+              <UserButton />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Main content area ───────────────────────────────────────────────── */}
+      <div className="flex flex-1 flex-col min-w-0 h-full overflow-hidden">
+        {/* Mobile topbar */}
+        <header className="md:hidden flex items-center gap-3 px-4 py-3 border-b border-foreground/10 shrink-0 liquid-glass-sidebar">
+          <button
+            type="button"
+            onClick={() => setIsNavDrawerOpen(true)}
+            className="text-foreground/70 hover:text-foreground"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <SidebarLogoHex className="h-6 w-6 text-foreground" />
+          <span className="text-sm font-semibold truncate flex-1">
+            LabelStudio Elite
+          </span>
+          <UserButton />
+        </header>
+
+        {/* View content */}
+        <main className="flex-1 overflow-hidden">
+          {currentView === "home" && (
+            <Home
+              onCreateNew={handleNewProject}
+              onOpenProject={handleOpenProject}
+              onOpenImporter={() => setCurrentView("importer")}
+              lastProject={projects[0] ?? undefined}
+              recentProjects={projects.slice(0, 5)}
+            />
+          )}
+
+          {currentView === "newProjectWizard" && (
+            <NewProjectWizard
+              key={wizardSessionNonce}
+              initialData={wizardData}
+              initialLabelTitle={wizardLabelTitle}
+              initialSectionIdx={wizardInitialSectionIdx}
+              draftProjectId={wizardDraftProjectId}
+              onSaveProgress={handleWizardSaveProgress}
+              onFinish={finishWizardToEditor}
+              onCancel={() => {
+                setCurrentView("home");
+                setIsNavDrawerOpen(false);
+              }}
+            />
+          )}
+
+          {currentView === "importer" && <ImporterManager />}
+
+          {currentView === "projects" && (
+            <div className="flex h-full w-full overflow-hidden">
+              {/* Form panel */}
+              {isFormPanelOpen && (
+                <div
+                  className="flex flex-col h-full shrink-0 border-r border-foreground/10 overflow-y-auto"
+                  style={{ width: formColumnWidth }}
+                >
+                  {/* Form panel header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 shrink-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={labelTitle}
+                        onChange={(e) => setLabelTitle(e.target.value)}
+                        className="text-sm font-medium bg-transparent border-none outline-none truncate w-full"
+                        placeholder="Nome do rótulo"
+                      />
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleSaveProject}
+                        disabled={isSaving}
+                        className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground disabled:opacity-50"
+                      >
+                        {isSaving ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Save className="h-3.5 w-3.5" />
+                        )}
+                        <span className="hidden sm:inline">Salvar</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => labelPreviewRef.current?.exportDocx()}
+                        className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">DOCX</span>
+                      </button>
+                      {selectedProjectId && (
+                        <button
+                          type="button"
+                          onClick={() => setIsDeleteModalOpen(true)}
+                          className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-destructive/80 hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Label fields */}
+                  <div className="flex-1 overflow-y-auto p-4">
+                    <ModelConfig
+                      data={data}
+                      onChange={handleChange}
+                      onLabelPatch={handleLabelPatch}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Resize handle */}
+              {isFormPanelOpen && (
+                <div
+                  className="w-1 shrink-0 cursor-col-resize hover:bg-primary/30 transition-colors"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    const startX = e.clientX;
+                    const startW = formColumnWidth;
+                    const onMove = (ev: MouseEvent) => {
+                      const next = Math.min(
+                        FORM_COL_MAX,
+                        Math.max(FORM_COL_MIN, startW + ev.clientX - startX),
+                      );
+                      setFormColumnWidth(next);
+                    };
+                    const onUp = () => {
+                      window.removeEventListener("mousemove", onMove);
+                      window.removeEventListener("mouseup", onUp);
+                    };
+                    window.addEventListener("mousemove", onMove);
+                    window.addEventListener("mouseup", onUp);
+                  }}
+                />
+              )}
+
+              {/* Canvas area */}
+              <main
+                ref={canvasMainRef}
+                className="flex-1 relative overflow-hidden"
+                style={{
+                  background: CANVAS_BG,
+                  cursor:
+                    guideTool !== "none"
+                      ? guideTool === "line-h"
+                        ? "crosshair"
+                        : "crosshair"
+                      : spaceHeld || canvasPointerMode === "pan"
+                        ? "grab"
+                        : "default",
+                }}
+                onMouseDown={(e) => {
+                  startCanvasPan(e);
+                  handleGuideCanvasMouseDown(e);
+                }}
+              >
+                {/* Dot grid */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)`,
+                    backgroundSize: `${DOT_GRID_BASE * canvasZoom}px ${DOT_GRID_BASE * canvasZoom}px`,
+                    backgroundPosition: `${canvasPanX % (DOT_GRID_BASE * canvasZoom)}px ${canvasPanY % (DOT_GRID_BASE * canvasZoom)}px`,
+                  }}
+                />
+
+                {/* Canvas toolbar */}
+                <div
+                  className="absolute top-3 right-3 z-10 flex items-center gap-1"
+                  data-canvas-ui
+                >
+                  {/* Undo/Redo */}
+                  <button
+                    type="button"
+                    onClick={undoEditor}
+                    disabled={!canUndo}
+                    className="glass-nav-btn rounded-lg p-1.5 text-foreground/70 hover:text-foreground disabled:opacity-30"
+                    title="Desfazer (Ctrl+Z)"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={redoEditor}
+                    disabled={!canRedo}
+                    className="glass-nav-btn rounded-lg p-1.5 text-foreground/70 hover:text-foreground disabled:opacity-30 scale-x-[-1]"
+                    title="Refazer (Ctrl+Y)"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </button>
+
+                  <div className="w-px h-5 bg-foreground/15 mx-0.5" />
+
+                  {/* Guide tools */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setGuideTool(guideTool === "line-h" ? "none" : "line-h")
+                    }
+                    className={`glass-nav-btn rounded-lg p-1.5 transition-colors ${guideTool === "line-h" ? "glass-nav-btn-active text-foreground" : "text-foreground/70 hover:text-foreground"}`}
+                    title="Linha guia horizontal"
+                  >
+                    <AlignCenter className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setGuideTool(guideTool === "line-v" ? "none" : "line-v")
+                    }
+                    className={`glass-nav-btn rounded-lg p-1.5 transition-colors ${guideTool === "line-v" ? "glass-nav-btn-active text-foreground" : "text-foreground/70 hover:text-foreground"}`}
+                    title="Linha guia vertical"
+                  >
+                    <AlignLeft className="h-4 w-4" />
+                  </button>
+
+                  {guideLines.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        commitEditorSnapshot({
+                          guideLines: [],
+                          labelBlockLayouts:
+                            dataRef.current.labelBlockLayouts == null
+                              ? null
+                              : structuredClone(
+                                  dataRef.current.labelBlockLayouts,
+                                ),
+                        });
+                      }}
+                      className="glass-nav-btn rounded-lg p-1.5 text-foreground/70 hover:text-destructive"
+                      title="Limpar guias"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  <div className="w-px h-5 bg-foreground/15 mx-0.5" />
+
+                  {/* Zoom controls */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCanvasZoom((z) =>
+                        Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)),
+                      )
+                    }
+                    className="glass-nav-btn rounded-lg p-1.5 text-foreground/70 hover:text-foreground"
+                    title="Diminuir zoom"
+                  >
+                    <ZoomOut className="h-4 w-4" />
+                  </button>
+                  <span className="text-xs text-foreground/60 w-10 text-center tabular-nums">
+                    {Math.round(canvasZoom * 100)}%
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCanvasZoom((z) =>
+                        Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)),
+                      )
+                    }
+                    className="glass-nav-btn rounded-lg p-1.5 text-foreground/70 hover:text-foreground"
+                    title="Aumentar zoom"
+                  >
+                    <ZoomIn className="h-4 w-4" />
+                  </button>
+
+                  <div className="w-px h-5 bg-foreground/15 mx-0.5" />
+
+                  {/* Toggle form panel */}
+                  <button
+                    type="button"
+                    onClick={() => setIsFormPanelOpen((v) => !v)}
+                    className="glass-nav-btn rounded-lg p-1.5 text-foreground/70 hover:text-foreground"
+                    title={
+                      isFormPanelOpen ? "Ocultar painel" : "Mostrar painel"
+                    }
+                  >
+                    {isFormPanelOpen ? (
+                      <PanelLeftClose className="h-4 w-4" />
+                    ) : (
+                      <PanelLeftOpen className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Text formatting toolbar */}
+                {selectedTextTools.selectedBlockId &&
+                  selectedTextTools.fmt &&
+                  selectedTextTools.onUpdateFmt && (
+                    <div
+                      className="absolute top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 glass-nav-btn rounded-xl px-2 py-1"
+                      data-canvas-ui
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          selectedTextTools.onUpdateFmt?.({
+                            bold: !selectedTextTools.fmt?.bold,
+                          })
+                        }
+                        className={`rounded-lg p-1.5 transition-colors ${selectedTextTools.fmt.bold ? "glass-nav-btn-active text-foreground" : "text-foreground/70 hover:text-foreground"}`}
+                        title="Negrito"
+                      >
+                        <Bold className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          selectedTextTools.onUpdateFmt?.({
+                            italic: !selectedTextTools.fmt?.italic,
+                          })
+                        }
+                        className={`rounded-lg p-1.5 transition-colors ${selectedTextTools.fmt.italic ? "glass-nav-btn-active text-foreground" : "text-foreground/70 hover:text-foreground"}`}
+                        title="Itálico"
+                      >
+                        <Italic className="h-4 w-4" />
+                      </button>
+                      <div className="w-px h-5 bg-foreground/15 mx-0.5" />
+                      {(["left", "center", "justify", "right"] as const).map(
+                        (align) => {
+                          const Icon =
+                            align === "left"
+                              ? AlignLeft
+                              : align === "center"
+                                ? AlignCenter
+                                : align === "justify"
+                                  ? AlignJustify
+                                  : AlignRight;
+                          return (
+                            <button
+                              key={align}
+                              type="button"
+                              onClick={() =>
+                                selectedTextTools.onUpdateFmt?.({
+                                  textAlign: align,
+                                })
+                              }
+                              className={`rounded-lg p-1.5 transition-colors ${selectedTextTools.fmt?.textAlign === align ? "glass-nav-btn-active text-foreground" : "text-foreground/70 hover:text-foreground"}`}
+                              title={`Alinhar ${align}`}
+                            >
+                              <Icon className="h-4 w-4" />
+                            </button>
+                          );
+                        },
+                      )}
+                    </div>
+                  )}
+
+                {/* Label viewport */}
+                <div
+                  className="absolute inset-0 flex items-center justify-center overflow-hidden"
+                  style={{
+                    pointerEvents: guideTool !== "none" ? "none" : "auto",
+                  }}
+                >
+                  <div
+                    ref={labelViewportInnerRef}
+                    style={{
+                      transform: `translate(${canvasPanX}px, ${canvasPanY}px) scale(${canvasZoom})`,
+                      transformOrigin: "center center",
+                      position: "relative",
+                      width: LABEL_PREVIEW_DESIGN_W_PX,
+                      height: labelCanvasPxH,
+                      translate: `${labelOffsetX}px ${labelOffsetY}px`,
+                    }}
+                    onMouseDown={startLabelMove}
+                  >
+                    <LabelPreview
+                      ref={labelPreviewRef}
+                      data={data}
+                      onLabelBlockLayoutsChange={handleLabelBlockLayoutsChange}
+                    />
+                  </div>
+                </div>
+
+                {/* Guide canvas overlay */}
+                {guideTool !== "none" && (
+                  <div
+                    className="absolute inset-0 z-10"
+                    style={{ cursor: "crosshair" }}
+                    onMouseDown={handleGuideCanvasMouseDown}
+                  />
+                )}
+              </main>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* ── Chat ────────────────────────────────────────────────────────────── */}
+      <ExpandableChatDemo />
+
+      {/* ── Modals ──────────────────────────────────────────────────────────── */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        title="Excluir projeto"
+        description={`Tem certeza que deseja excluir "${labelTitle}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        onConfirm={handleDeleteProject}
+        onClose={() => setIsDeleteModalOpen(false)}
+      />
+
+      <ConfirmationModal
+        isOpen={!!sidebarDeleteProjectId}
+        title="Excluir projeto"
+        description={`Tem certeza que deseja excluir "${sidebarDeleteProjectName}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        onConfirm={handleSidebarDeleteProject}
+        onClose={() => setSidebarDeleteProjectId(null)}
+      />
+
+      <ConfirmationModal
+        isOpen={isResetLayoutModalOpen}
+        title="Resetar layout"
+        description="Isso vai restaurar as posições e tamanhos padrão de todos os blocos. Continuar?"
+        confirmText="Resetar"
+        onConfirm={() => {
+          const defaults = getDefaultLabelBlockLayouts(data.proportion);
+          commitEditorSnapshot({
+            guideLines: structuredClone(guideLinesRef.current),
+            labelBlockLayouts: defaults,
+          });
+          setIsResetLayoutModalOpen(false);
+        }}
+        onClose={() => setIsResetLayoutModalOpen(false)}
+      />
+    </div>
+  );
+}
