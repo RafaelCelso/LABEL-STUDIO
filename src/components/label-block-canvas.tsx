@@ -40,6 +40,8 @@ type LabelBlockCanvasProps = {
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (v: string | null) => void,
   ) => void;
+  /** Prévia só leitura: sem barras de rolagem dentro dos blocos. */
+  staticPreview?: boolean;
 };
 
 // ─── Bloco individual (Rnd + formatação) ─────────────────────────────────────
@@ -51,6 +53,8 @@ type RndBlockProps = {
   layoutPx: { x: number; y: number; w: number; h: number };
   fmt: LabelBlockFmt;
   isSelected: boolean;
+  /** Sem scroll interno (ex.: prévia no wizard); texto pode ultrapassar a moldura do bloco. */
+  staticPreview?: boolean;
   updateRect: (
     id: LabelBlockId,
     patch: Partial<LabelBlockLayouts[LabelBlockId]>,
@@ -69,6 +73,7 @@ const RndBlock = memo(function RndBlock({
   layoutPx,
   fmt,
   isSelected,
+  staticPreview,
   updateRect,
   onDragComplete,
   onSelect,
@@ -97,6 +102,8 @@ const RndBlock = memo(function RndBlock({
       }}
       minWidth={20}
       minHeight={10}
+      disableDragging={Boolean(staticPreview)}
+      enableResizing={staticPreview ? false : undefined}
       dragGrid={[1, 1]}
       resizeGrid={[1, 1]}
       className={cn(
@@ -134,7 +141,10 @@ const RndBlock = memo(function RndBlock({
       }}
     >
       <div
-        className={cn("h-full w-full overflow-auto p-0.5")}
+        className={cn(
+          "h-full w-full p-0.5",
+          staticPreview ? "overflow-visible" : "overflow-auto",
+        )}
         style={fmtStyle}
         onMouseDown={() => onSelect(id)}
       >
@@ -155,6 +165,7 @@ export function LabelBlockCanvas({
   setSeloImage,
   setBarcodeImage,
   handleImageUpload,
+  staticPreview = false,
 }: LabelBlockCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [cw, setCw] = useState(0);
@@ -681,6 +692,7 @@ export function LabelBlockCanvas({
             layoutPx={layoutPx}
             fmt={r.fmt ?? {}}
             isSelected={selectedBlockId === id}
+            staticPreview={staticPreview}
             updateRect={updateRect}
             onDragComplete={handleDragComplete}
             onSelect={setSelectedBlockId}
@@ -692,11 +704,14 @@ export function LabelBlockCanvas({
                 contentRefs.current[id] = el;
               }}
               className={cn(
-                "h-full w-full overflow-auto p-0.5",
+                "h-full w-full p-0.5",
+                staticPreview ? "overflow-visible" : "overflow-auto",
                 isTextBlock(id) && editingBlockId === id && "cursor-text",
                 r.fmt?.bold && "[&_*]:!font-bold",
               )}
-              contentEditable={isTextBlock(id) && editingBlockId === id}
+              contentEditable={
+                !staticPreview && isTextBlock(id) && editingBlockId === id
+              }
               suppressContentEditableWarning
               onMouseDown={() => {
                 setSelectedBlockId(id);

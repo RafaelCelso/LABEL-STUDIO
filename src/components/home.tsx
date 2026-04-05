@@ -1,172 +1,233 @@
-"use client"
+"use client";
 
-import { FileText, Plus, Clock, ChevronRight, LayoutDashboard, Settings } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import {
+  FileText,
+  Plus,
+  Clock,
+  ChevronRight,
+  LayoutDashboard,
+  Settings,
+} from "lucide-react";
 
-interface HomeProps {
-  lastProject?: any
-  onCreateNew: () => void
-  onOpenProject: (project: any) => void
-  onOpenImporter: () => void
+/** Projeto na lista / cartão “continuar editando” (campos usados pela UI). */
+export interface HomeProjectPreview {
+  name: string;
+  updated_at?: string | null;
 }
 
-export function Home({ lastProject, onCreateNew, onOpenProject, onOpenImporter }: HomeProps) {
+interface HomeProps {
+  /** Nome ou apelido exibido no cabeçalho (ex.: sessão Neon Auth). */
+  displayName?: string;
+  lastProject?: HomeProjectPreview;
+  onCreateNew: () => void;
+  onOpenProject: (project: HomeProjectPreview | string) => void;
+  onOpenImporter: () => void;
+}
+
+export function Home({
+  displayName = "Rafael",
+  lastProject,
+  onCreateNew,
+  onOpenProject,
+  onOpenImporter,
+}: HomeProps) {
+  const greetingName = displayName.trim() || "Rafael";
+
   return (
-    <div className="w-full h-full flex flex-col p-8 overflow-y-auto custom-scrollbar bg-slate-50/30">
-      <div className="max-w-5xl w-full mx-auto space-y-12 pb-20">
-        
-        {/* Welcome Header */}
-        <div className="space-y-2">
-          <h2 className="text-4xl font-light text-slate-800">
-            Olá, <span className="font-semibold text-slate-900">Rafael</span>
+    <div className="relative z-10 flex min-h-full w-full flex-col overflow-y-auto custom-scrollbar">
+      <div className="mx-auto w-full max-w-5xl space-y-10 p-8 pb-20">
+        <div className="space-y-3 text-center sm:text-left">
+          <h2 className="font-serif text-4xl font-light tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            Olá, {greetingName}
           </h2>
-          <p className="text-slate-500 text-lg">Bem-vindo de volta ao LabelStudio Elite. O que vamos criar hoje?</p>
+          <p className="mx-auto max-w-2xl text-base font-medium leading-relaxed text-muted-foreground sm:mx-0">
+            Bem-vindo de volta ao LabelStudio Elite. O que vamos criar hoje?
+          </p>
         </div>
 
-        {/* Quick Actions / Featured */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Create New Project Card */}
-          <button 
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <button
+            type="button"
             onClick={onCreateNew}
-            className="group relative flex flex-col items-center justify-center p-8 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-200 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
+            className={cn(
+              "auth-cta-glow group relative flex min-h-[168px] cursor-pointer flex-col justify-between overflow-hidden rounded-[1.65rem] p-7 text-left text-primary-foreground transition-all duration-300",
+              "bg-gradient-to-br from-primary via-primary to-chart-3",
+              "hover:-translate-y-0.5",
+            )}
           >
-            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all" />
-            <div className="relative mb-4 p-3 bg-white/10 rounded-xl">
-              <Plus className="w-8 h-8" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-foreground/20 ring-2 ring-primary-foreground/35 shadow-[inset_0_2px_8px_rgba(255,255,255,0.2)]">
+              <Plus className="h-8 w-8" strokeWidth={2.5} />
             </div>
-            <span className="text-lg font-semibold">Novo Projeto</span>
-            <span className="text-blue-100 text-sm mt-1">Crie labels do zero</span>
+            <div className="relative">
+              <span className="block text-lg font-semibold tracking-tight">
+                Novo Projeto
+              </span>
+              <span className="mt-0.5 block text-sm font-medium text-primary-foreground/88">
+                Crie labels do zero.
+              </span>
+            </div>
           </button>
 
-          {/* Importer Card */}
-          <button 
+          <button
+            type="button"
             onClick={onOpenImporter}
-            className="group flex flex-col items-center justify-center p-8 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+            className={cn(
+              "auth-frost-panel group flex min-h-[168px] cursor-pointer flex-col justify-between p-7 text-left transition-all duration-300",
+              "hover:-translate-y-0.5 hover:bg-background/15",
+            )}
           >
-            <div className="mb-4 p-3 bg-slate-100 rounded-xl text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
-              <Settings className="w-8 h-8" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-foreground/8 text-foreground ring-1 ring-border shadow-inner transition-all group-hover:bg-foreground/12">
+              <Settings className="h-7 w-7" strokeWidth={1.75} />
             </div>
-            <span className="text-lg font-semibold text-slate-800">Configurações</span>
-            <span className="text-slate-500 text-sm mt-1">Gerencie importadores</span>
-          </button>
-          
-          {/* Help Card */}
-          <button 
-            className="group flex flex-col items-center justify-center p-8 rounded-2xl bg-slate-100 border border-transparent hover:border-slate-200 opacity-60 hover:opacity-100 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-          >
-            <div className="mb-4 p-3 bg-white rounded-xl text-slate-400 group-hover:text-slate-600 transition-all shadow-sm">
-              <Clock className="w-8 h-8" />
+            <div>
+              <span className="block text-lg font-semibold tracking-tight text-foreground">
+                Configurações
+              </span>
+              <span className="mt-0.5 block text-sm font-medium text-muted-foreground">
+                Gerencie importadores.
+              </span>
             </div>
-            <span className="text-lg font-semibold text-slate-800 italic">Em Breve...</span>
-            <span className="text-slate-400 text-sm mt-1 italic tracking-widest uppercase text-[10px]">Analytics</span>
           </button>
         </div>
 
-        {/* Main Sections Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-          
-          {/* Last Project Section (Left, larger) */}
-          <div className="lg:col-span-3 space-y-4">
-            <div className="flex items-center gap-2 text-slate-800 mb-2">
-              <LayoutDashboard className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-bold">Continuar editando</h3>
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-5">
+          <div className="space-y-4 lg:col-span-3">
+            <div className="flex items-center gap-2 text-foreground">
+              <LayoutDashboard className="h-5 w-5 text-muted-foreground" />
+              <h3 className="text-lg font-semibold tracking-tight">
+                Continuar editando
+              </h3>
             </div>
-            
+
             {lastProject ? (
               <div
+                role="button"
+                tabIndex={0}
                 onClick={() => onOpenProject(lastProject)}
-                className="group relative bg-white p-1 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onOpenProject(lastProject);
+                  }
+                }}
+                className={cn(
+                  "auth-frost-panel-strong group cursor-pointer overflow-hidden rounded-[1.65rem] p-1 transition-all duration-300",
+                  "hover:-translate-y-0.5",
+                )}
               >
                 <div className="p-6">
-                  <div className="flex items-start justify-between mb-8">
-                    <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
-                      <FileText className="w-8 h-8" />
+                  <div className="mb-8 flex items-start justify-between">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20 shadow-inner">
+                      <FileText className="h-8 w-8" />
                     </div>
-                    <div className="flex gap-1">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="w-2 h-2 rounded-full bg-slate-100" />
+                    <div className="flex gap-1.5 pt-1">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-2 w-2 rounded-full bg-muted-foreground/35"
+                        />
                       ))}
                     </div>
                   </div>
-                  
-                  <h4 className="text-2xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mb-2">
+
+                  <h4 className="mb-2 text-2xl font-semibold leading-tight tracking-tight text-foreground transition-colors group-hover:text-primary">
                     {lastProject.name}
                   </h4>
-                  <p className="text-slate-500 mb-6 line-clamp-2 text-sm leading-relaxed">
-                    Última alteração: {lastProject.updated_at ? new Date(lastProject.updated_at).toLocaleDateString("pt-BR") : "recentemente"}. Clique para continuar editando.
+                  <p className="mb-6 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                    Última alteração:{" "}
+                    {lastProject.updated_at
+                      ? new Date(lastProject.updated_at).toLocaleDateString(
+                          "pt-BR",
+                        )
+                      : "recentemente"}
+                    . Clique para continuar editando.
                   </p>
-                  
-                  <div className="flex items-center justify-between border-t pt-4">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">Projeto Ativo</span>
-                    <div className="flex items-center text-sm font-semibold text-blue-600 border b-2">
-                       Abrir Projeto
-                       <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+
+                  <div className="flex items-center justify-between border-t border-border/60 pt-4">
+                    <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                      Projeto ativo
+                    </span>
+                    <div className="flex items-center text-sm font-semibold text-primary">
+                      Abrir projeto
+                      <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-white p-6 rounded-2xl border border-dashed border-slate-200 text-center text-slate-400">
-                <FileText className="w-8 h-8 mx-auto mb-3 opacity-40" />
-                <p className="text-sm">Nenhum projeto ainda. Crie o seu primeiro!</p>
+              <div className="relative pb-1 pt-2">
+                <div
+                  className="auth-frost-panel pointer-events-none absolute inset-x-4 bottom-2 top-11 rounded-[1.5rem] opacity-55"
+                  aria-hidden
+                />
+                <div
+                  className="auth-frost-panel pointer-events-none absolute inset-x-2.5 bottom-1 top-7 rounded-[1.55rem] opacity-70"
+                  aria-hidden
+                />
+
+                <div className="auth-frost-panel relative rounded-[1.65rem] px-10 py-14 text-center">
+                  <FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                  <p className="mx-auto max-w-xs text-sm font-medium leading-relaxed text-muted-foreground">
+                    Nenhum projeto ainda. Crie o seu primeiro!
+                  </p>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Recent History / Mini List (Right, smaller) */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2 text-slate-800 mb-2">
-              <Clock className="w-5 h-5 text-slate-500" />
-              <h3 className="text-lg font-bold">Mais recentes</h3>
+          <div className="space-y-4 lg:col-span-2">
+            <div className="flex items-center gap-2 text-foreground">
+              <Clock className="h-5 w-5 text-muted-foreground" />
+              <h3 className="text-lg font-semibold tracking-tight">
+                Mais recentes
+              </h3>
             </div>
-            
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden divide-y divide-slate-100">
-              {['Action Figure Hero', 'Puzzle Master 1000'].map((project, idx) => (
-                <button 
-                  key={idx}
-                  onClick={() => onOpenProject(project)}
-                  className="w-full text-left p-4 hover:bg-slate-50 transition-colors flex items-center justify-between group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="p-2 bg-slate-50 rounded text-slate-400 group-hover:text-blue-500 group-hover:bg-blue-50 transition-all">
-                      <FileText className="w-4 h-4" />
+
+            <div className="auth-frost-panel flex flex-col overflow-hidden rounded-[1.65rem]">
+              <div className="divide-y divide-border/50">
+                {[
+                  { name: "Action Figure Hero", accent: "blue" as const },
+                  { name: "Puzzle Master 1000", accent: "orange" as const },
+                ].map((row, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => onOpenProject(row.name)}
+                    className="group flex w-full cursor-pointer items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-foreground/6"
+                  >
+                    <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+                      <div
+                        className={cn(
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-foreground shadow-md",
+                          row.accent === "blue"
+                            ? "bg-primary auth-cta-glow"
+                            : "bg-chart-4 shadow-md",
+                        )}
+                      >
+                        <FileText className="h-4 w-4 opacity-95" />
+                      </div>
+                      <span className="truncate text-sm font-medium text-foreground">
+                        {row.name}
+                      </span>
                     </div>
-                    <span className="text-slate-700 font-medium truncate text-sm">{project}</span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </button>
+                ))}
+              </div>
+              <div className="p-4 pt-2">
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-border/80 bg-background/40 py-3 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground shadow-inner backdrop-blur-md transition-all hover:bg-background/55 hover:text-foreground"
+                >
+                  Ver todos os projetos
                 </button>
-              ))}
-              <button 
-                className="w-full p-4 text-center text-blue-600 font-semibold text-xs hover:bg-slate-50 transition-colors uppercase tracking-widest"
-              >
-                Ver todos os projetos
-              </button>
+              </div>
             </div>
           </div>
-
         </div>
-
-        {/* Footer info/stats */}
-        <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
-           <div className="p-4 bg-white rounded-xl border border-slate-100 text-center">
-              <div className="text-2xl font-bold text-slate-900">12</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Projetos</div>
-           </div>
-           <div className="p-4 bg-white rounded-xl border border-slate-100 text-center">
-              <div className="text-2xl font-bold text-slate-900">1.2k</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Labels Geradas</div>
-           </div>
-           <div className="p-4 bg-white rounded-xl border border-slate-100 text-center">
-              <div className="text-2xl font-bold text-slate-900">24</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Modelos</div>
-           </div>
-           <div className="p-4 bg-white rounded-xl border border-slate-100 text-center">
-              <div className="text-2xl font-bold text-slate-900">99.9%</div>
-              <div className="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Uptime</div>
-           </div>
-        </div>
-
       </div>
     </div>
-  )
+  );
 }

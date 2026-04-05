@@ -50,7 +50,7 @@ export function LabelAgeIndicationField({ value, onChange, fieldClassName, idPre
   const radioName = `${idPrefix}-unit`
 
   const radioClass =
-    "size-4 shrink-0 cursor-pointer border-slate-300 bg-white accent-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 focus-visible:ring-offset-2"
+    "size-4 shrink-0 cursor-pointer border-border bg-background accent-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
 
   return (
     <div className="space-y-3">
@@ -85,7 +85,7 @@ export function LabelAgeIndicationField({ value, onChange, fieldClassName, idPre
       >
         <label
           htmlFor={idMeses}
-          className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-slate-800"
+          className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-foreground"
         >
           <input
             id={idMeses}
@@ -104,7 +104,7 @@ export function LabelAgeIndicationField({ value, onChange, fieldClassName, idPre
         </label>
         <label
           htmlFor={idAnos}
-          className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-slate-800"
+          className="flex cursor-pointer items-center gap-2.5 text-sm font-medium text-foreground"
         >
           <input
             id={idAnos}

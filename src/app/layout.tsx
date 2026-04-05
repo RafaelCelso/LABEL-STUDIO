@@ -23,18 +23,16 @@ export default function RootLayout({
   const neonAuthClient = authClient as any;
 
   return (
-    <html lang="en" className={`${poppins.variable} h-full antialiased`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${poppins.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
       <body className="h-full flex flex-col font-sans overflow-hidden">
-        <NeonAuthUIProvider
-          authClient={neonAuthClient}
-          redirectTo="/"
-          emailOTP
-        >
+        <NeonAuthUIProvider authClient={neonAuthClient} redirectTo="/" emailOTP>
           {children}
         </NeonAuthUIProvider>
       </body>
     </html>
   );
 }
-
-

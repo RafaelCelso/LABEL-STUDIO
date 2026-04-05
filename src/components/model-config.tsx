@@ -19,9 +19,9 @@ import { LabelProportionFields } from "@/components/label-proportion-fields"
 
 const IMPORTER_ORPHAN_VALUE = "__orphan__"
 
-/** Fundo e borda dos campos na vista de projeto (contraste com o cinza da área de trabalho). */
+/** Campos na vista de projeto — tokens do tema (coerente com auth / wizard). */
 const projectFieldClass =
-  "border border-slate-400 bg-white font-medium text-slate-900 caret-slate-900 shadow-sm placeholder:text-slate-500 focus-visible:border-slate-600 focus-visible:ring-2 focus-visible:ring-slate-400/60 focus-visible:ring-offset-0"
+  "border border-input bg-background font-medium text-foreground caret-foreground shadow-sm placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-0"
 
 function parseMmYyyyMaskInput(raw: string): { formatted: string; digits: string } {
   const digits = raw.replace(/\D/g, "").slice(0, 6)
@@ -109,8 +109,8 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
   return (
     <div className="flex flex-col space-y-8">
       <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Modelo de Produto</h2>
-        <h3 className="text-xl font-semibold text-slate-900">Configuração do Modelo</h3>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Modelo de Produto</h2>
+        <h3 className="font-serif text-xl font-light text-foreground">Configuração do Modelo</h3>
       </div>
 
       {/* PROPORÇÃO */}
@@ -121,12 +121,12 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
       {/* IDENTIDADE DO PRODUTO */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">Identidade do Produto</h4>
+          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Identidade do Produto</h4>
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Nome do Produto</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Nome do Produto</Label>
             <Input 
               value={data.productName} 
               onChange={(e) => onChange("productName", e.target.value)} 
@@ -135,7 +135,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Código</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Código</Label>
               <Input 
                 value={data.code} 
                 onChange={(e) => onChange("code", e.target.value)} 
@@ -143,7 +143,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Marca</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Marca</Label>
               <Input 
                 value={data.brand} 
                 onChange={(e) => onChange("brand", e.target.value)} 
@@ -157,14 +157,14 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
       {/* CLASSIFICAÇÃO ETÁRIA E CERTIFICAÇÃO */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
             Classificação etária e certificação
           </h4>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Qual a restrição de idade para seu produto, segundo o órgão certificador?
             </Label>
             <Select
@@ -184,7 +184,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
             </Select>
           </div>
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Indicação</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Indicação</Label>
             <LabelAgeIndicationField
               value={data.ageIndication}
               onChange={(val) => onChange("ageIndication", val)}
@@ -198,13 +198,13 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
       {/* LOGÍSTICA */}
       <div className="space-y-4">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">Logística</h4>
+          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Logística</h4>
         </div>
         
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Importador</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Importador</Label>
             <Select
               value={importerSelectValue}
               onValueChange={(val) => void handleImporterSelect(val ?? "")}
@@ -243,7 +243,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               </SelectContent>
             </Select>
             {!importersLoading && importerRows.length === 0 ? (
-              <p className="text-[10px] text-slate-500">
+              <p className="text-[10px] text-muted-foreground">
                 Nenhum importador vinculado à sua conta. Use o menu <strong>Importador</strong> para cadastrar.
               </p>
             ) : null}
@@ -251,7 +251,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Origem</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Origem</Label>
               <Select value={data.origin} onValueChange={(val) => onChange("origin", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}>
                   <SelectValue placeholder="Selecione..." />
@@ -267,7 +267,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Quantidade</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Quantidade</Label>
               <Input 
                 value={data.quantity} 
                 onChange={(e) => onChange("quantity", e.target.value)} 
@@ -275,7 +275,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               />
             </div>
             <div className="space-y-1.5 flex flex-col">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Fabricação</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Fabricação</Label>
               <Input 
                 value={data.manufactureDate} 
                 onChange={(e) => {
@@ -306,7 +306,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               )}
             </div>
             <div className="space-y-1.5 focus-within:ring-0">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Lote</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Lote</Label>
               <Input 
                 value={data.batch} 
                 onChange={(e) => onChange("batch", e.target.value)} 
@@ -321,7 +321,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5 flex flex-col">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Data de Validade</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Data de Validade</Label>
               <Input 
                 value={data.expiryDate} 
                 onChange={(e) => {
@@ -339,7 +339,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
                   projectFieldClass,
                   "transition-all",
                   data.isExpiryIndeterminate &&
-                    "cursor-not-allowed border-slate-300 bg-slate-100 text-slate-600 opacity-90",
+                    "cursor-not-allowed border-border bg-muted text-muted-foreground opacity-90",
                   !data.isExpiryIndeterminate &&
                     expiryErrors.length > 0 &&
                     "border-red-600 bg-red-50 text-red-900 caret-red-900 focus-visible:border-red-600 focus-visible:ring-red-300/60"
@@ -363,9 +363,9 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
                   type="checkbox" 
                   checked={data.isExpiryIndeterminate} 
                   onChange={(e) => onChange("isExpiryIndeterminate", e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-primary"
                 />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 group-hover/check:text-slate-900 transition-colors">Indeterminada</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover/check:text-foreground transition-colors">Indeterminada</span>
               </label>
             </div>
           </div>
@@ -375,13 +375,13 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
       {/* SEGURANÇA E AVISOS */}
       <div className="space-y-4 pb-12">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">Segurança e Avisos</h4>
+          <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Segurança e Avisos</h4>
         </div>
         
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Qual a Função?</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Qual a Função?</Label>
             <Select value={data.functionType} onValueChange={(val) => onChange("functionType", val || "")}>
               <SelectTrigger className={cn("w-full", projectFieldClass)}>
                 <SelectValue placeholder="Selecione..." />
@@ -395,28 +395,28 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Pilhas e Baterias</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pilhas e Baterias</Label>
               <Select value={data.hasBatteries} onValueChange={(val) => onChange("hasBatteries", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Tipo de Bateria</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tipo de Bateria</Label>
               <Select value={data.batteryType} onValueChange={(val) => onChange("batteryType", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Quantidade de Bateria</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Quantidade de Bateria</Label>
               <Select value={data.batteryQuantity} onValueChange={(val) => onChange("batteryQuantity", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Pilhas ou Baterias Inclusas</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Pilhas ou Baterias Inclusas</Label>
               <Select value={data.batteriesIncluded} onValueChange={(val) => onChange("batteriesIncluded", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
@@ -425,7 +425,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Contém fecho metálico na embalagem?</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Contém fecho metálico na embalagem?</Label>
             <Select value={data.hasMetalFastener} onValueChange={(val) => onChange("hasMetalFastener", val || "")}>
               <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
               <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
@@ -433,7 +433,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Saco plástico com abertura maior ou igual a 20cm?</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Saco plástico com abertura maior ou igual a 20cm?</Label>
             <Select value={data.hasLargePlasticBag} onValueChange={(val) => onChange("hasLargePlasticBag", val || "")}>
               <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
               <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
@@ -442,14 +442,14 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Contém bolinhas?</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Contém bolinhas?</Label>
               <Select value={data.hasSmallBalls} onValueChange={(val) => onChange("hasSmallBalls", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Contém corda comprida?</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Contém corda comprida?</Label>
               <Select value={data.hasLongString} onValueChange={(val) => onChange("hasLongString", val || "")}>
                 <SelectTrigger className={cn("w-full", projectFieldClass)}><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent><SelectItem value="SIM">SIM</SelectItem><SelectItem value="NAO">NAO</SelectItem></SelectContent>
@@ -459,7 +459,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Seu produto contém bexiga ou algum balão?
               </Label>
               <Select value={data.hasBalloonOrBall} onValueChange={(val) => onChange("hasBalloonOrBall", val || "")}>
@@ -473,7 +473,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Seu produto é ou contém projéteis, pistolas com projéteis ou pistola ou lançador de água?
               </Label>
               <Select
@@ -492,7 +492,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Seu produto contém som, músicas ou ruídos?
             </Label>
             <Select
@@ -513,7 +513,7 @@ export function ModelConfig({ data, onChange, onLabelPatch }: ModelConfigProps) 
           </div>
           {data.hasSoundMusicNoise === "Sim" && (
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Decibéis (dB)</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Decibéis (dB)</Label>
               <Input
                 value={data.soundDecibels}
                 onChange={(e) => onChange("soundDecibels", e.target.value)}

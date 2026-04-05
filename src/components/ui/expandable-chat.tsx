@@ -58,7 +58,7 @@ const ExpandableChat: React.FC<ExpandableChatProps> = ({
       <div
         ref={chatRef}
         className={cn(
-          "flex flex-col overflow-hidden border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-2xl shadow-black/40 transition-all duration-250 ease-out sm:absolute sm:w-[90vw] sm:h-[80vh] fixed inset-0 w-full h-full sm:inset-auto sm:rounded-xl",
+          "flex h-full w-full flex-col overflow-hidden border border-border bg-card/95 text-foreground shadow-2xl shadow-black/20 backdrop-blur-xl transition-all duration-250 ease-out fixed inset-0 sm:absolute sm:h-[80vh] sm:w-[90vw] sm:inset-auto sm:rounded-xl",
           chatConfig.chatPositions[position],
           chatConfig.dimensions[size],
           isOpen ? chatConfig.states.open : chatConfig.states.closed,
@@ -69,7 +69,7 @@ const ExpandableChat: React.FC<ExpandableChatProps> = ({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 sm:hidden"
+          className="absolute right-2 top-2 text-muted-foreground hover:bg-muted hover:text-foreground sm:hidden"
           onClick={toggleChat}
         >
           <X className="h-4 w-4" />
@@ -92,7 +92,7 @@ const ExpandableChatHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 }) => (
   <div
     className={cn(
-      "flex items-center justify-between border-b border-zinc-800 bg-zinc-950/95 p-4",
+      "flex items-center justify-between border-b border-border/70 bg-background/80 p-4 backdrop-blur-md",
       className,
     )}
     {...props}
@@ -106,7 +106,7 @@ const ExpandableChatBody: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={cn("min-h-0 flex-grow overflow-y-auto bg-zinc-950", className)}
+    className={cn("min-h-0 flex-grow overflow-y-auto bg-muted/25", className)}
     {...props}
   />
 );
@@ -118,7 +118,7 @@ const ExpandableChatFooter: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => (
   <div
-    className={cn("border-t border-zinc-800 bg-zinc-950/95 p-4", className)}
+    className={cn("border-t border-border/70 bg-background/80 p-4 backdrop-blur-md", className)}
     {...props}
   />
 );
@@ -146,20 +146,20 @@ const ExpandableChatToggle: React.FC<ExpandableChatToggleProps> = ({
     aria-label={ariaLabel ?? (isOpen ? "Fechar chat" : "Abrir chat")}
     className={cn(
       "inline-flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full",
-      "border-2 border-zinc-500 bg-zinc-950 text-zinc-50 shadow-lg shadow-black/50 ring-1 ring-zinc-600/80",
+      "auth-cta-glow border-2 border-primary/50 bg-primary text-primary-foreground shadow-lg ring-1 ring-primary/30",
       "transition-all duration-300",
-      "hover:border-zinc-400 hover:bg-zinc-800 hover:shadow-xl hover:shadow-black/60",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/80 focus-visible:ring-offset-2 focus-visible:ring-offset-[#f0f2f5]",
-      "[&_svg]:size-6 [&_svg]:shrink-0 [&_svg]:stroke-zinc-50",
+      "hover:border-primary hover:bg-primary/90 hover:shadow-xl hover:shadow-black/25",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+      "[&_svg]:size-6 [&_svg]:shrink-0 [&_svg]:stroke-primary-foreground",
       className,
     )}
     {...props}
   >
     {isOpen ? (
-      <X className="h-6 w-6 stroke-zinc-50" strokeWidth={2} aria-hidden />
+      <X className="h-6 w-6 stroke-primary-foreground" strokeWidth={2} aria-hidden />
     ) : (
       icon ?? (
-        <MessageCircle className="h-6 w-6 stroke-zinc-50" strokeWidth={2} aria-hidden />
+        <MessageCircle className="h-6 w-6 stroke-primary-foreground" strokeWidth={2} aria-hidden />
       )
     )}
   </button>

@@ -83,15 +83,27 @@ function use11Layout(proportion: string): boolean {
   return labelProportionIsSquare(proportion)
 }
 
-/** Altura total da caixa branca no preview (inclui faixa do rodapé fixo). */
-export function labelPreviewOuterHeightPx(proportion: string): number {
+/** Teto padrão da altura do preview no editor (mantém canvas compacto). */
+export const LABEL_PREVIEW_MAX_HEIGHT_DEFAULT_PX = 600
+
+/**
+ * Altura total da caixa branca no preview (inclui faixa do rodapé fixo).
+ * `maxHeightPx` maior (ex.: no modal do wizard) dá mais pixels às caixas dos blocos e reduz overflow.
+ */
+export function labelPreviewOuterHeightPx(
+  proportion: string,
+  options?: { maxHeightPx?: number },
+): number {
+  const cap = options?.maxHeightPx ?? LABEL_PREVIEW_MAX_HEIGHT_DEFAULT_PX
   const d = parseCmDimensions(proportion)
   if (d) {
-    return Math.min(600, LABEL_PREVIEW_DESIGN_W_PX * (d.hCm / d.wCm))
+    return Math.min(cap, LABEL_PREVIEW_DESIGN_W_PX * (d.hCm / d.wCm))
   }
-  return proportion === "5:2 (Padrão)"
-    ? Math.min(600, LABEL_PREVIEW_DESIGN_W_PX / 1.25)
-    : Math.min(600, LABEL_PREVIEW_DESIGN_W_PX);
+  const raw =
+    proportion === "5:2 (Padrão)"
+      ? LABEL_PREVIEW_DESIGN_W_PX / 1.25
+      : LABEL_PREVIEW_DESIGN_W_PX
+  return Math.min(cap, raw)
 }
 
 /** Reservado ao rodapé em label-preview (h-[calc(100%-18px)]). */

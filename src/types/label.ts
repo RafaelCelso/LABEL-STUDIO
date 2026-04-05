@@ -47,6 +47,14 @@ export interface LabelData {
   soundDecibels: string;
   expiryDate: string;
   isExpiryIndeterminate: boolean;
+  /** Rascunho do assistente de novo projeto: etapa atual no servidor (retomar depois). */
+  wizardDraft?: { sectionIdx: number };
+}
+
+/** Remove metadados do assistente antes de editar / exibir a etiqueta final. */
+export function stripWizardDraft(data: LabelData): LabelData {
+  const { wizardDraft: _wd, ...rest } = data;
+  return rest as LabelData;
 }
 
 export const initialLabelData: LabelData = {

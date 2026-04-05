@@ -30,7 +30,7 @@ export function LabelPackagingFields({ data, onPatch, fieldClassName }: Props) {
   return (
     <>
       <div className="space-y-1.5">
-        <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
           Tipo de Embalagem do Produto
         </Label>
         <Select
@@ -59,7 +59,7 @@ export function LabelPackagingFields({ data, onPatch, fieldClassName }: Props) {
 
       {data.packagingType === "Color Box" ? (
         <div className="space-y-1.5">
-          <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+          <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             Tipo de Color Box
           </Label>
           <Select
@@ -86,7 +86,7 @@ export function LabelPackagingFields({ data, onPatch, fieldClassName }: Props) {
 
       {data.packagingType === "Outro" ? (
         <div className="space-y-1.5">
-          <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+          <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             Nome da embalagem
           </Label>
           <Input

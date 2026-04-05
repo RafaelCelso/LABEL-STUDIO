@@ -28,22 +28,22 @@ export function NoticeModal({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 animate-in bg-black/45 backdrop-blur-sm fade-in duration-200" />
         <DialogPrimitive.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-full max-w-lg max-h-[85vh] overflow-y-auto -translate-x-1/2 -translate-y-1/2",
-            "bg-white p-6 shadow-2xl rounded-2xl animate-in fade-in zoom-in-95 duration-200",
+            "fixed left-1/2 top-1/2 z-50 max-h-[85vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto",
+            "auth-frost-panel-strong animate-in rounded-2xl p-6 shadow-2xl fade-in zoom-in-95 duration-200",
           )}
         >
           <div className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
-              <div className="p-2 bg-blue-50 rounded-full shrink-0">
-                <Info className="h-6 w-6 text-blue-600" />
+              <div className="shrink-0 rounded-full bg-primary/15 p-2">
+                <Info className="h-6 w-6 text-primary" />
               </div>
               <DialogPrimitive.Close asChild>
                 <button
                   type="button"
-                  className="rounded-full p-1.5 hover:bg-slate-100 transition-colors text-slate-400 shrink-0"
+                  className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   aria-label="Fechar"
                 >
                   <X className="h-4 w-4" />
@@ -52,10 +52,10 @@ export function NoticeModal({
             </div>
 
             <div className="space-y-2 pr-2">
-              <DialogPrimitive.Title className="text-lg font-bold text-slate-900 leading-tight">
+              <DialogPrimitive.Title className="text-lg font-semibold leading-tight text-foreground">
                 {title}
               </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+              <DialogPrimitive.Description className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                 {description}
               </DialogPrimitive.Description>
             </div>
@@ -64,7 +64,7 @@ export function NoticeModal({
               <DialogPrimitive.Close asChild>
                 <Button
                   type="button"
-                  className="rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white border-none"
+                  className="auth-cta-glow rounded-xl border-none bg-primary font-semibold text-primary-foreground hover:bg-primary/90"
                 >
                   {confirmText}
                 </Button>

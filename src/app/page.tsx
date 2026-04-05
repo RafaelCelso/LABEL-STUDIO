@@ -8,7 +8,12 @@ import {
 } from "lucide-react"
 import { UserButton, useAuthenticate } from "@neondatabase/auth/react"
 
-import { initialLabelData, emptyLabelData, LabelData } from "@/types/label"
+import {
+  initialLabelData,
+  emptyLabelData,
+  LabelData,
+  stripWizardDraft,
+} from "@/types/label"
 import {
   LABEL_PREVIEW_DESIGN_W_PX,
   labelPreviewOuterHeightPx,
@@ -19,12 +24,43 @@ import {
 import { ModelConfig } from "@/components/model-config"
 import { LabelPreview, type LabelPreviewHandle } from "@/components/label-preview"
 import { ImporterManager } from "@/components/importer-manager"
+import { AppGradientLayer } from "@/components/app-gradient-layer"
 import { Home } from "@/components/home"
 import { ExpandableChatDemo } from "@/components/expandable-chat-demo"
-import { NewProjectWizard } from "@/components/new-project-wizard"
+import {
+  NewProjectWizard,
+  WIZARD_SECTION_COUNT,
+} from "@/components/new-project-wizard"
 import { ConfirmationModal } from "@/components/ui/confirmation-modal"
 import { saveProject, updateProject, getProjects, deleteProject } from "@/app/actions/project"
 import { toast } from "sonner"
+
+/** Logo hexagonal (contorno) como no mock LabelStudio Elite */
+function SidebarLogoHex({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      className={className}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M16 4l10.39 6v12L16 28 5.61 22V10L16 4z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 10l5.2 3v6L16 22l-5.2-3v-6L16 10z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        opacity={0.85}
+      />
+    </svg>
+  )
+}
 
 const FORM_COL_MIN = 240
 const FORM_COL_MAX = 640
@@ -71,7 +107,7 @@ function isEditableTarget(t: EventTarget | null): boolean {
 }
 
 export default function LabelStudio() {
-  const { data: session } = useAuthenticate({ enabled: false })
+  const { data: session } = useAuthenticate({ enabled: true })
   const user = session?.user
   const [data, setData] = useState<LabelData>(initialLabelData)
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true)
@@ -80,6 +116,11 @@ export default function LabelStudio() {
   const [currentView, setCurrentView] = useState<"projects" | "importer" | "home" | "newProjectWizard">("home")
   const [wizardData, setWizardData] = useState<LabelData>(emptyLabelData)
   const [wizardLabelTitle, setWizardLabelTitle] = useState("")
+  const [wizardDraftProjectId, setWizardDraftProjectId] = useState<
+    string | null
+  >(null)
+  const [wizardInitialSectionIdx, setWizardInitialSectionIdx] = useState(0)
+  const [wizardSessionNonce, setWizardSessionNonce] = useState(0)
   const [projects, setProjects] = useState<any[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -491,6 +532,9 @@ export default function LabelStudio() {
 
   const handleNewProject = () => {
     setSelectedProjectId(null)
+    setWizardDraftProjectId(null)
+    setWizardInitialSectionIdx(0)
+    setWizardSessionNonce((n) => n + 1)
     const next = { ...emptyLabelData }
     setWizardData(next)
     setWizardLabelTitle("")
@@ -498,22 +542,93 @@ export default function LabelStudio() {
     setIsNavDrawerOpen(false)
   }
 
+  const handleWizardSaveProgress = useCallback(
+    async (args: {
+      labelTitle: string
+      data: LabelData
+      existingProjectId: string | null
+    }) => {
+      if (!user) {
+        return { success: false, error: "Faça login para salvar o rascunho." }
+      }
+      const name = args.labelTitle.trim() || "Rascunho"
+      try {
+        if (args.existingProjectId) {
+          const r = await updateProject(
+            args.existingProjectId,
+            name,
+            args.data,
+          )
+          if (r.success) await loadProjects()
+          return {
+            success: r.success,
+            error: r.error,
+          }
+        }
+        const r = await saveProject(name, args.data)
+        if (r.success && r.project?.id) {
+          setWizardDraftProjectId(r.project.id as string)
+          await loadProjects()
+          return { success: true }
+        }
+        return {
+          success: false,
+          error: r.error ?? "Não foi possível criar o rascunho.",
+        }
+      } catch {
+        return { success: false, error: "Erro ao salvar o rascunho." }
+      }
+    },
+    [user, loadProjects],
+  )
+
   const finishWizardToEditor = useCallback(
-    (result: { labelTitle: string; data: LabelData }) => {
-      setSelectedProjectId(null)
+    (result: {
+      labelTitle: string
+      data: LabelData
+      projectId: string | null
+    }) => {
+      setWizardDraftProjectId(null)
+      setSelectedProjectId(result.projectId)
       setLabelTitle(result.labelTitle)
       setData(result.data)
       resetEditorHistoryForSession(result.data.labelBlockLayouts ?? null)
       setCurrentView("projects")
       setIsNavDrawerOpen(false)
+      void loadProjects()
     },
-    [resetEditorHistoryForSession],
+    [resetEditorHistoryForSession, loadProjects],
   )
 
   const handleOpenProject = (project: any) => {
+    const merged: LabelData = {
+      ...emptyLabelData,
+      ...project.label_data,
+    }
+    const wd = merged.wizardDraft
+    if (
+      wd &&
+      typeof wd.sectionIdx === "number" &&
+      Number.isFinite(wd.sectionIdx)
+    ) {
+      setWizardLabelTitle(project.name ?? "")
+      setWizardData(merged)
+      setWizardDraftProjectId(project.id ?? null)
+      setWizardInitialSectionIdx(
+        Math.min(
+          Math.max(0, Math.floor(wd.sectionIdx)),
+          WIZARD_SECTION_COUNT - 1,
+        ),
+      )
+      setWizardSessionNonce((n) => n + 1)
+      setCurrentView("newProjectWizard")
+      setIsNavDrawerOpen(false)
+      return
+    }
+    setWizardDraftProjectId(null)
     setLabelTitle(project.name)
     setSelectedProjectId(project.id)
-    setData({ ...emptyLabelData, ...project.label_data })
+    setData(stripWizardDraft(merged))
     resetEditorHistoryForSession(project.label_data?.labelBlockLayouts ?? null)
     setCurrentView("projects")
     setIsNavDrawerOpen(false)
@@ -709,114 +824,211 @@ export default function LabelStudio() {
     [canvasZoom, guideTool, labelCanvasPxH, lineThickness, commitEditorSnapshot],
   )
 
-  const NavItems = ({ compact = false }: { compact?: boolean }) => (
-    <nav className="space-y-1">
-      <button
-        onClick={() => { setCurrentView("home"); setIsNavDrawerOpen(false) }}
-        className={`flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm font-medium cursor-pointer transition-all ${currentView === "home" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"}`}
-      >
-        <LayoutDashboard className={`h-5 w-5 shrink-0 ${currentView === "home" ? "text-blue-600" : "text-gray-400"}`} />
-        {!compact && <span>Início</span>}
-      </button>
-
-      <div className="flex flex-col space-y-1">
+  const NavItems = ({
+    compact = false,
+    variant = "default",
+  }: {
+    compact?: boolean
+    variant?: "default" | "glass"
+  }) => {
+    const glass = variant === "glass"
+    return (
+      <nav className="space-y-1">
         <button
-          onClick={() => setIsProjectsExpanded(!isProjectsExpanded)}
-          className="flex w-full items-center justify-between rounded-md bg-gray-50 px-2 py-2 text-sm font-medium text-blue-600 cursor-pointer"
+          type="button"
+          onClick={() => {
+            setCurrentView("home")
+            setIsNavDrawerOpen(false)
+          }}
+          className={`flex w-full items-center gap-3 px-3 py-2.5 text-sm font-medium cursor-pointer transition-all ${
+            glass
+              ? currentView === "home"
+                ? "rounded-xl glass-nav-btn glass-nav-btn-active text-foreground"
+                : "rounded-xl glass-nav-btn text-foreground/85 hover:text-foreground"
+              : currentView === "home"
+                ? "rounded-md bg-blue-50 text-blue-700"
+                : "rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          }`}
         >
-          <div className="flex items-center gap-3">
-            <Folder className="h-5 w-5 shrink-0" />
-            {!compact && <span>Projetos</span>}
-          </div>
-          {!compact && (
-            <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isProjectsExpanded ? "rotate-180" : ""}`} />
-          )}
+          <LayoutDashboard
+            className={`h-5 w-5 shrink-0 ${
+              currentView === "home"
+                ? glass
+                  ? "text-foreground"
+                  : "text-blue-600"
+                : glass
+                  ? "text-foreground/85"
+                  : "text-gray-400"
+            }`}
+          />
+          {!compact && <span>Início</span>}
         </button>
 
-        {!compact && isProjectsExpanded && (
-          <div className="flex flex-col pl-6 pr-2 py-1 space-y-1">
-            <button
-              onClick={handleNewProject}
-              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 border border-dashed border-slate-300 bg-slate-50/50 cursor-pointer w-full text-left"
-            >
-              <Plus className="h-4 w-4 shrink-0" />
-              Novo Projeto
-            </button>
-            {isLoading ? (
-              <div className="flex items-center gap-2 px-2 py-2 text-sm text-slate-400">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Carregando...</span>
-              </div>
-            ) : projects.map((project) => {
-              const isActive = currentView === "projects" && project.id === selectedProjectId
-              return (
-                <button
-                  key={project.id}
-                  onClick={() => handleOpenProject(project)}
-                  className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium text-left truncate cursor-pointer transition-colors ${isActive ? "bg-blue-50/50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
+        <div className="flex flex-col space-y-1">
+          <button
+            type="button"
+            onClick={() => setIsProjectsExpanded(!isProjectsExpanded)}
+            className={`flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium cursor-pointer ${
+              glass
+                ? "rounded-xl glass-nav-ghost text-foreground"
+                : "rounded-md bg-gray-50 text-blue-600 transition-colors"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Folder className="h-5 w-5 shrink-0" />
+              {!compact && <span>Projetos</span>}
+            </div>
+            {!compact && (
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isProjectsExpanded ? "rotate-180" : ""}`}
+              />
+            )}
+          </button>
+
+          {!compact && isProjectsExpanded && (
+            <div className="ml-3 flex flex-col space-y-0.5 border-l border-foreground/20 py-1 pl-4 pr-1 dark:border-white/35">
+              <button
+                type="button"
+                onClick={handleNewProject}
+                className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-left text-sm font-medium ${
+                  glass
+                    ? "glass-nav-dashed text-foreground/90 hover:text-foreground"
+                    : "border border-dashed border-border bg-muted/40 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Plus className="h-4 w-4 shrink-0 opacity-90" />
+                Novo Projeto
+              </button>
+              {isLoading ? (
+                <div
+                  className={`flex items-center gap-2 px-2 py-2 text-sm ${glass ? "text-foreground/80" : "text-muted-foreground"}`}
                 >
-                  <FileText className={`h-4 w-4 shrink-0 ${isActive ? "text-blue-600" : "opacity-50"}`} />
-                  <span className="truncate">{project.name}</span>
-                </button>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col space-y-1">
-        <button
-          onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
-          className="flex w-full items-center justify-between rounded-md px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <Settings className="h-5 w-5 shrink-0" />
-            {!compact && <span>Configurações</span>}
-          </div>
-          {!compact && (
-            <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 text-gray-400 ${isSettingsExpanded ? "rotate-180" : ""}`} />
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Carregando...</span>
+                </div>
+              ) : (
+                projects.map((project) => {
+                  const isActive =
+                    currentView === "projects" && project.id === selectedProjectId
+                  return (
+                    <button
+                      type="button"
+                      key={project.id}
+                      onClick={() => handleOpenProject(project)}
+                      className={`flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium text-left truncate cursor-pointer ${
+                        glass
+                          ? isActive
+                            ? "glass-nav-sublink glass-nav-sublink-active text-foreground"
+                            : "glass-nav-sublink text-foreground/88 hover:text-foreground"
+                          : isActive
+                            ? "bg-blue-50/50 text-blue-700 transition-colors"
+                            : "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      }`}
+                    >
+                      <FileText
+                        className={`h-4 w-4 shrink-0 ${
+                          isActive
+                            ? glass
+                              ? "text-foreground"
+                              : "text-blue-600"
+                            : glass
+                              ? "text-foreground/80"
+                              : "opacity-50"
+                        }`}
+                      />
+                      <span className="truncate">{project.name}</span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
           )}
-        </button>
+        </div>
 
-        {!compact && isSettingsExpanded && (
-          <div className="flex flex-col pl-6 pr-2 py-1 space-y-1">
-            <button
-              onClick={() => { setCurrentView("importer"); setIsNavDrawerOpen(false) }}
-              className={`flex items-center gap-2 rounded-md px-2 py-2 text-sm font-medium cursor-pointer transition-colors ${currentView === "importer" ? "bg-blue-50/50 text-blue-700" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
-            >
-              <Ship className={`h-4 w-4 shrink-0 ${currentView === "importer" ? "text-blue-600" : "opacity-70"}`} />
-              <span>Importador</span>
-            </button>
-          </div>
-        )}
-      </div>
-    </nav>
-  )
+        <div className="flex flex-col space-y-1">
+          <button
+            type="button"
+            onClick={() => setIsSettingsExpanded(!isSettingsExpanded)}
+            className={`flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium cursor-pointer ${
+              glass
+                ? "rounded-xl glass-nav-ghost text-foreground"
+                : "rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <Settings className="h-5 w-5 shrink-0" />
+              {!compact && <span>Configurações</span>}
+            </div>
+            {!compact && (
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 transition-transform duration-200 ${!glass ? "text-gray-400" : ""} ${isSettingsExpanded ? "rotate-180" : ""}`}
+              />
+            )}
+          </button>
+
+          {!compact && isSettingsExpanded && (
+            <div className="ml-3 flex flex-col space-y-0.5 border-l border-foreground/20 py-1 pl-4 pr-1 dark:border-white/35">
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentView("importer")
+                  setIsNavDrawerOpen(false)
+                }}
+                className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium ${
+                  glass
+                    ? currentView === "importer"
+                      ? "glass-nav-sublink glass-nav-sublink-active text-foreground"
+                      : "glass-nav-sublink text-foreground/88 hover:text-foreground"
+                    : currentView === "importer"
+                      ? "bg-blue-50/50 text-blue-700 transition-colors"
+                      : "text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Ship
+                  className={`h-4 w-4 shrink-0 ${
+                    currentView === "importer"
+                      ? glass
+                        ? "text-foreground"
+                        : "text-blue-600"
+                      : glass
+                        ? "text-foreground/80"
+                        : "opacity-70"
+                  }`}
+                />
+                <span>Importador</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </nav>
+    )
+  }
 
   /* ─── EDITOR VIEW (project open) ─── */
   if (currentView === "projects") {
     return (
-      <div className="flex h-screen w-full flex-col bg-[#f0f2f5] font-sans text-slate-800 overflow-hidden">
+      <div className="relative flex h-screen w-full flex-col overflow-hidden bg-card font-sans text-foreground">
+        <AppGradientLayer idPrefix="editor-shell" />
 
         {/* Top Bar */}
-        <header className="flex h-12 shrink-0 items-center justify-between border-b bg-white px-3 gap-3 z-30">
+        <header className="relative z-30 flex h-12 shrink-0 items-center justify-between gap-3 border-b border-border/70 bg-background/65 px-3 backdrop-blur-xl">
           {/* Left: menu + back */}
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => setIsNavDrawerOpen((v) => !v)}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer transition-colors"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               title="Menu"
             >
               <Menu className="h-4 w-4" />
             </button>
             <button
               onClick={() => setCurrentView("home")}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 cursor-pointer transition-colors"
+              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               title="Voltar ao início"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <div className="mx-1 h-5 w-px bg-slate-200" />
+            <div className="mx-1 h-5 w-px bg-border" />
           </div>
 
           {/* Center: project title */}
@@ -825,7 +1037,7 @@ export default function LabelStudio() {
               type="text"
               value={labelTitle}
               onChange={(e) => setLabelTitle(e.target.value)}
-              className="w-full max-w-xs text-center text-sm font-semibold text-slate-800 bg-transparent border-b border-transparent hover:border-slate-200 focus:border-slate-400 focus:outline-none transition-colors px-2 py-0.5 truncate"
+              className="w-full max-w-xs truncate border-b border-transparent bg-transparent px-2 py-0.5 text-center text-sm font-semibold text-foreground transition-colors hover:border-border focus:border-primary focus:outline-none"
               placeholder="Nome do Projeto..."
             />
           </div>
@@ -835,32 +1047,32 @@ export default function LabelStudio() {
             <button
               onClick={() => void handleSaveProject()}
               disabled={isSaving}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-50 hover:border-blue-200 disabled:opacity-50 disabled:pointer-events-none cursor-pointer transition-colors"
+              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 text-xs font-semibold text-primary shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/10 disabled:pointer-events-none disabled:opacity-50"
             >
               {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
               Salvar
             </button>
             <button
               onClick={() => void labelPreviewRef.current?.exportDocx()}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-emerald-700 shadow-sm hover:bg-emerald-50 hover:border-emerald-200 cursor-pointer transition-colors"
+              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 text-xs font-semibold text-emerald-600 shadow-sm transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/10 dark:text-emerald-400"
             >
               <Download className="h-3.5 w-3.5" />
               Exportar
             </button>
             <button
               onClick={() => setIsDeleteModalOpen(true)}
-              className="flex h-8 items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-50 hover:border-red-200 cursor-pointer transition-colors"
+              className="flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background/80 px-3 text-xs font-semibold text-destructive shadow-sm transition-colors hover:border-destructive/40 hover:bg-destructive/10"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Excluir
             </button>
-            <div className="mx-1 h-5 w-px bg-slate-200" />
+            <div className="mx-1 h-5 w-px bg-border" />
             <UserButton size="icon" />
           </div>
         </header>
 
         {/* Body */}
-        <div className="relative flex flex-1 overflow-hidden">
+        <div className="relative z-10 flex flex-1 overflow-hidden">
 
           {/* Nav Drawer (overlay) */}
           {isNavDrawerOpen && (
@@ -869,12 +1081,12 @@ export default function LabelStudio() {
                 className="absolute inset-0 z-20 bg-black/20"
                 onClick={() => setIsNavDrawerOpen(false)}
               />
-              <div className="absolute left-0 top-0 z-30 h-full w-64 bg-white border-r shadow-xl flex flex-col">
-                <div className="flex items-center justify-between px-4 py-3 border-b">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Menu</span>
+              <div className="absolute left-0 top-0 z-30 flex h-full w-64 flex-col border-r border-border/70 bg-background/90 shadow-xl backdrop-blur-xl">
+                <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Menu</span>
                   <button
                     onClick={() => setIsNavDrawerOpen(false)}
-                    className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -888,7 +1100,7 @@ export default function LabelStudio() {
 
           {/* Form Sidebar (largura ajustável) */}
           <aside
-            className="shrink-0 bg-white border-r overflow-y-auto flex flex-col"
+            className="flex shrink-0 flex-col overflow-y-auto border-r border-border/60 bg-background/50 backdrop-blur-xl"
             style={{ width: formColumnWidth }}
           >
             <div className="p-5">
@@ -901,9 +1113,9 @@ export default function LabelStudio() {
             type="button"
             aria-label="Redimensionar painel do formulário"
             onMouseDown={startResizeFormColumn}
-            className="group relative z-10 w-1.5 shrink-0 cursor-col-resize border-0 bg-transparent p-0 outline-none hover:bg-slate-300/80 focus-visible:ring-2 focus-visible:ring-blue-400/50"
+            className="group relative z-10 w-1.5 shrink-0 cursor-col-resize border-0 bg-transparent p-0 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-slate-200 group-hover:bg-slate-400" />
+            <span className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border group-hover:bg-muted-foreground/40" />
           </button>
 
           {/* Canvas: fundo em grade + zoom + pan */}
@@ -1313,8 +1525,12 @@ export default function LabelStudio() {
   if (currentView === "newProjectWizard") {
     return (
       <NewProjectWizard
+        key={`wizard-${wizardSessionNonce}`}
         initialLabelTitle={wizardLabelTitle}
         initialData={wizardData}
+        initialSectionIdx={wizardInitialSectionIdx}
+        draftProjectId={wizardDraftProjectId}
+        onSaveProgress={handleWizardSaveProgress}
         onCancel={() => setCurrentView("home")}
         onFinish={(result) => finishWizardToEditor(result)}
       />
@@ -1323,20 +1539,37 @@ export default function LabelStudio() {
 
   /* ─── HOME / IMPORTER VIEW ─── */
   return (
-    <div className="flex h-screen w-full flex-col bg-[#f0f2f5] font-sans text-slate-800">
-      <header className="flex h-16 shrink-0 items-center justify-between border-b bg-white px-6">
-        <h1 className="text-xl font-medium tracking-tight">LabelStudio Elite</h1>
-        <UserButton size="icon" />
-      </header>
+    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-card font-sans text-foreground">
+      <AppGradientLayer idPrefix="app-shell" />
 
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-64 shrink-0 flex flex-col border-r bg-white h-full p-4 space-y-4">
-          <NavItems />
+      <div className="relative z-10 flex min-h-0 flex-1 overflow-hidden">
+        <aside className="liquid-glass-sidebar flex h-full w-64 shrink-0 flex-col p-4">
+          <div className="flex items-center gap-2.5 px-1 pb-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary drop-shadow-sm">
+              <SidebarLogoHex className="h-9 w-9" />
+            </div>
+            <span className="text-base font-bold leading-tight tracking-tight text-foreground">
+              LabelStudio Elite
+            </span>
+          </div>
+          <div className="-mr-1 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+            <NavItems variant="glass" />
+          </div>
+          <div className="mt-4 flex shrink-0 items-center border-t border-border/40 pt-4">
+            <div className="glass-user-wrap rounded-xl p-0.5">
+              <UserButton size="icon" />
+            </div>
+          </div>
         </aside>
 
-        <main className="flex-1 overflow-hidden border-l border-gray-200 flex flex-col">
+        <main className="flex-1 min-h-0 overflow-hidden flex flex-col bg-transparent">
           {currentView === "home" ? (
             <Home
+              displayName={
+                user?.name?.trim() ||
+                user?.email?.split("@")[0]?.trim() ||
+                undefined
+              }
               lastProject={projects[0]}
               onCreateNew={handleNewProject}
               onOpenProject={(p) => handleOpenProject(p)}

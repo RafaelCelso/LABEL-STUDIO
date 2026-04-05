@@ -17,7 +17,7 @@ const PRESET_SQUARE = PROPORTION_PRESET_CM.square
 const CUSTOM_VALUE = "custom"
 
 const projectFieldClass =
-  "rounded-xl border border-slate-200 bg-white font-medium text-slate-900 caret-slate-900 shadow-sm placeholder:text-slate-400 transition-[box-shadow,border-color] focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-500/25 focus-visible:ring-offset-0"
+  "rounded-xl border border-input bg-background font-medium text-foreground caret-foreground shadow-sm placeholder:text-muted-foreground transition-[box-shadow,border-color] focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25 focus-visible:ring-offset-0"
 
 function normalizeCmString(p: string): string | null {
   const d = parseCmDimensions(p)
@@ -111,10 +111,10 @@ export function LabelProportionFields({ data, onChange, fieldClassName }: Props)
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Proporção</Label>
-        <p className="text-sm text-slate-600">
-          Informe <strong className="text-slate-800">largura</strong> e <strong className="text-slate-800">altura</strong> em{" "}
-          <strong className="text-slate-800">centímetros</strong>, ou escolha um preset.
+        <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Proporção</Label>
+        <p className="text-sm text-muted-foreground">
+          Informe <strong className="text-foreground">largura</strong> e <strong className="text-foreground">altura</strong> em{" "}
+          <strong className="text-foreground">centímetros</strong>, ou escolha um preset.
         </p>
         <Select
           value={selectValue}
@@ -143,11 +143,11 @@ export function LabelProportionFields({ data, onChange, fieldClassName }: Props)
       </div>
 
       {showCustomInputs ? (
-        <div className="space-y-3 rounded-xl border border-slate-200/90 bg-slate-50/50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">Dimensões personalizadas</p>
+        <div className="space-y-3 rounded-xl border border-border/70 bg-muted/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dimensões personalizadas</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Altura (cm)
               </Label>
               <Input
@@ -169,7 +169,7 @@ export function LabelProportionFields({ data, onChange, fieldClassName }: Props)
               />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-bold uppercase tracking-wider text-slate-700">
+              <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                 Largura (cm)
               </Label>
               <Input

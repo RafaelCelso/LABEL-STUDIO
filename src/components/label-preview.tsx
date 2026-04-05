@@ -42,10 +42,15 @@ type LabelPreviewProps = {
   data: LabelData;
   /** Persiste posição/tamanho dos blocos da etiqueta. */
   onLabelBlockLayoutsChange?: (layouts: LabelBlockLayouts) => void;
+  /** Prévia sem scroll nos blocos (ex.: modal do wizard). */
+  staticPreview?: boolean;
 };
 
 export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
-  function LabelPreview({ data, onLabelBlockLayoutsChange }, ref) {
+  function LabelPreview(
+    { data, onLabelBlockLayoutsChange, staticPreview = false },
+    ref,
+  ) {
     const [seloImage, setSeloImage] = useState<string | null>(null);
     const [barcodeImage, setBarcodeImage] = useState<string | null>(null);
 
@@ -547,6 +552,7 @@ export const LabelPreview = forwardRef<LabelPreviewHandle, LabelPreviewProps>(
               setSeloImage={setSeloImage}
               setBarcodeImage={setBarcodeImage}
               handleImageUpload={handleImageUpload}
+              staticPreview={staticPreview}
             />
           </div>
 
