@@ -174,6 +174,9 @@ export default function LabelStudio() {
   const [isLoading, setIsLoading] = useState(true);
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
+  const [isSidebarHovered, setIsSidebarHovered] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userButtonWrapperRef = useRef<HTMLDivElement>(null);
   const [formColumnWidth, setFormColumnWidth] = useState(FORM_COL_DEFAULT);
   const [canvasZoom, setCanvasZoom] = useState(1);
   const [canvasPanX, setCanvasPanX] = useState(0);
@@ -243,6 +246,20 @@ export default function LabelStudio() {
   useEffect(() => {
     guideLinesRef.current = guideLines;
   }, [guideLines]);
+
+  // Detecta abertura/fechamento do menu do UserButton via MutationObserver no body
+  useEffect(() => {
+    if (!isSidebarCollapsed) return;
+    const observer = new MutationObserver(() => {
+      // Popover/dropdown do UserButton usa [data-radix-popper-content-wrapper] ou similar
+      const hasPopover = !!document.querySelector(
+        "[data-radix-popper-content-wrapper], [data-radix-dropdown-menu-content], [role='menu']",
+      );
+      setIsUserMenuOpen(hasPopover);
+    });
+    observer.observe(document.body, { childList: true, subtree: false });
+    return () => observer.disconnect();
+  }, [isSidebarCollapsed]);
 
   useEffect(() => {
     const onSelectionEvent = (ev: Event) => {
@@ -436,11 +453,11 @@ export default function LabelStudio() {
     [formColumnWidth],
   );
 
-  const loadProjects = useCallback(async () => {
-    setIsLoading(true);
+  const loadProjects = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true);
     const result = await getProjects();
     setProjects(result);
-    setIsLoading(false);
+    if (!silent) setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -640,7 +657,7 @@ export default function LabelStudio() {
             name,
             args.data,
           );
-          if (r.success) await loadProjects();
+          if (r.success) await loadProjects(true);
           return {
             success: r.success,
             error: r.error,
@@ -649,7 +666,7 @@ export default function LabelStudio() {
         const r = await saveProject(name, args.data);
         if (r.success && r.project?.id) {
           setWizardDraftProjectId(r.project.id as string);
-          await loadProjects();
+          await loadProjects(true);
           return { success: true };
         }
         return {
@@ -676,7 +693,7 @@ export default function LabelStudio() {
       resetEditorHistoryForSession(result.data.labelBlockLayouts ?? null);
       setCurrentView("projects");
       setIsNavDrawerOpen(false);
-      void loadProjects();
+      void loadProjects(true);
     },
     [resetEditorHistoryForSession, loadProjects],
   );
@@ -729,7 +746,7 @@ export default function LabelStudio() {
         }
       }
     } finally {
-      await loadProjects();
+      await loadProjects(true);
       setIsSaving(false);
     }
   };
@@ -739,7 +756,7 @@ export default function LabelStudio() {
     const result = await deleteProject(selectedProjectId);
     if (result.success) {
       toast.success("Projeto excluído com sucesso.");
-      loadProjects();
+      loadProjects(true);
       setCurrentView("home");
       setSelectedProjectId(null);
       setIsDeleteModalOpen(false);
@@ -755,7 +772,7 @@ export default function LabelStudio() {
         setCurrentView("home");
         setSelectedProjectId(null);
       }
-      loadProjects();
+      loadProjects(true);
       setSidebarDeleteProjectId(null);
     }
   };
@@ -1156,19 +1173,25 @@ export default function LabelStudio() {
 
       {/* ── Desktop sidebar ─────────────────────────────────────────────────── */}
       <aside
-        className={`hidden md:flex flex-col shrink-0 h-full z-20 transition-all duration-300 liquid-glass-sidebar ${
-          isSidebarCollapsed ? "w-16" : "w-60"
+        className={`hidden md:flex flex-col shrink-0 h-full z-20 transition-all duration-300 liquid-glass-sidebar-dark ${
+          !isSidebarCollapsed || isSidebarHovered || isUserMenuOpen
+            ? "w-60"
+            : "w-16"
         }`}
+        onMouseEnter={() => setIsSidebarHovered(true)}
+        onMouseLeave={() => setIsSidebarHovered(false)}
       >
         {/* Logo */}
         <div
-          className={`flex items-center gap-2.5 px-3 py-4 border-b border-foreground/10 ${
-            isSidebarCollapsed ? "justify-center" : ""
+          className={`flex items-center gap-2.5 px-3 py-4 border-b border-white/8 ${
+            isSidebarCollapsed && !isSidebarHovered && !isUserMenuOpen
+              ? "justify-center"
+              : ""
           }`}
         >
-          <SidebarLogoHex className="h-7 w-7 shrink-0 text-foreground" />
-          {!isSidebarCollapsed && (
-            <span className="text-sm font-semibold tracking-tight truncate">
+          <SidebarLogoHex className="h-7 w-7 shrink-0 text-white/80" />
+          {(!isSidebarCollapsed || isSidebarHovered || isUserMenuOpen) && (
+            <span className="text-sm font-semibold tracking-tight truncate text-white/85">
               LabelStudio Elite
             </span>
           )}
@@ -1176,15 +1199,18 @@ export default function LabelStudio() {
 
         {/* Nav */}
         <div className="flex-1 overflow-y-auto py-3 px-2">
-          <NavItems compact={isSidebarCollapsed} variant="glass" />
+          <NavItems
+            compact={isSidebarCollapsed && !isSidebarHovered && !isUserMenuOpen}
+            variant="glass"
+          />
         </div>
 
         {/* Collapse toggle */}
-        <div className="border-t border-foreground/10 p-2">
+        <div className="p-2 border-t border-white/8">
           <button
             type="button"
             onClick={() => setIsSidebarCollapsed((v) => !v)}
-            className="glass-nav-btn flex w-full items-center justify-center rounded-xl p-2 text-foreground/70 hover:text-foreground transition-colors"
+            className="flex w-full items-center justify-center rounded-xl p-2 text-white/50 hover:text-white/90 hover:bg-white/8 transition-colors cursor-pointer"
             title={isSidebarCollapsed ? "Expandir sidebar" : "Recolher sidebar"}
           >
             {isSidebarCollapsed ? (
@@ -1196,57 +1222,67 @@ export default function LabelStudio() {
         </div>
 
         {/* User */}
-        <div className="border-t border-foreground/10 p-3 glass-user-wrap">
+        <div className="p-3 border-t border-white/8">
           <div
-            className={`flex items-center ${isSidebarCollapsed ? "justify-center" : "gap-2"}`}
+            className={`flex items-center ${isSidebarCollapsed && !isSidebarHovered && !isUserMenuOpen ? "justify-center" : "gap-2"} [&_button]:cursor-pointer [&_*]:cursor-pointer`}
           >
-            <UserButton />
-            {!isSidebarCollapsed && (
-              <span className="text-xs text-muted-foreground truncate">
-                Conta
-              </span>
+            {isSidebarCollapsed && !isSidebarHovered && !isUserMenuOpen ? (
+              <UserButton size="icon" />
+            ) : (
+              <UserButton />
             )}
+            {!isSidebarCollapsed || isSidebarHovered || isUserMenuOpen}
           </div>
         </div>
       </aside>
 
       {/* ── Mobile nav drawer ───────────────────────────────────────────────── */}
-      {isNavDrawerOpen && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setIsNavDrawerOpen(false)}
-          />
-          {/* Drawer */}
-          <div className="absolute left-0 top-0 h-full w-72 mobile-drawer-sidebar flex flex-col">
-            <div className="flex items-center justify-between px-4 py-4 border-b border-foreground/10">
-              <div className="flex items-center gap-2.5">
-                <SidebarLogoHex className="h-6 w-6 text-foreground" />
-                <span className="text-sm font-semibold">LabelStudio Elite</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsNavDrawerOpen(false)}
-                className="text-foreground/60 hover:text-foreground"
-              >
-                <X className="h-5 w-5" />
-              </button>
+      <div
+        className={`fixed inset-0 z-40 md:hidden transition-all duration-300 ${
+          isNavDrawerOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
+        {/* Backdrop */}
+        <div
+          className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
+            isNavDrawerOpen ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={() => setIsNavDrawerOpen(false)}
+        />
+        {/* Drawer */}
+        <div
+          className={`absolute left-0 top-0 h-full w-72 liquid-glass-sidebar-dark-mobile flex flex-col transition-all duration-300 ${
+            isNavDrawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between px-4 py-4 border-b border-white/8">
+            <div className="flex items-center gap-2.5">
+              <SidebarLogoHex className="h-6 w-6 text-white/80" />
+              <span className="text-sm font-semibold text-white/85">
+                LabelStudio Elite
+              </span>
             </div>
-            <div className="flex-1 overflow-y-auto py-3 px-3">
-              <NavItems variant="glass" />
-            </div>
-            <div className="border-t border-foreground/10 p-3">
-              <UserButton />
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsNavDrawerOpen(false)}
+              className="text-white/50 hover:text-white/90"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-3 px-3">
+            <NavItems variant="glass" />
+          </div>
+          <div className="p-3 border-t border-white/8">
+            <UserButton />
           </div>
         </div>
-      )}
+      </div>
 
       {/* ── Main content area ───────────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col min-w-0 h-full overflow-hidden">
         {/* Mobile topbar */}
-        <header className="md:hidden flex items-center gap-3 px-4 py-3 border-b border-foreground/10 shrink-0 liquid-glass-sidebar">
+        <header className="md:hidden flex items-center gap-3 px-4 py-3 shrink-0 liquid-glass-sidebar-dark border-b border-white/8">
           <button
             type="button"
             onClick={() => setIsNavDrawerOpen(true)}
@@ -1258,11 +1294,10 @@ export default function LabelStudio() {
           <span className="text-sm font-semibold truncate flex-1">
             LabelStudio Elite
           </span>
-          <UserButton />
         </header>
 
         {/* View content */}
-        <main className="flex-1 overflow-hidden">
+        <main className="relative z-10 flex-1 overflow-hidden">
           {currentView === "home" && (
             <Home
               onCreateNew={handleNewProject}
@@ -1296,11 +1331,11 @@ export default function LabelStudio() {
               {/* Form panel */}
               {isFormPanelOpen && (
                 <div
-                  className="flex flex-col h-full shrink-0 border-r border-foreground/10 overflow-y-auto"
+                  className="flex flex-col h-full shrink-0 border-r border-foreground/10 overflow-y-auto bg-background"
                   style={{ width: formColumnWidth }}
                 >
                   {/* Form panel header */}
-                  <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 shrink-0">
+                  <div className="flex items-center px-4 py-3 border-b border-foreground/10 shrink-0">
                     <div className="flex items-center gap-2 min-w-0">
                       <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                       <input
@@ -1310,38 +1345,6 @@ export default function LabelStudio() {
                         className="text-sm font-medium bg-transparent border-none outline-none truncate w-full"
                         placeholder="Nome do rótulo"
                       />
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={handleSaveProject}
-                        disabled={isSaving}
-                        className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground disabled:opacity-50"
-                      >
-                        {isSaving ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        ) : (
-                          <Save className="h-3.5 w-3.5" />
-                        )}
-                        <span className="hidden sm:inline">Salvar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => labelPreviewRef.current?.exportDocx()}
-                        className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">DOCX</span>
-                      </button>
-                      {selectedProjectId && (
-                        <button
-                          type="button"
-                          onClick={() => setIsDeleteModalOpen(true)}
-                          className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-destructive/80 hover:text-destructive"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
                     </div>
                   </div>
 
@@ -1416,6 +1419,43 @@ export default function LabelStudio() {
                   className="absolute top-3 right-3 z-10 flex items-center gap-1"
                   data-canvas-ui
                 >
+                  {/* Save / Export / Delete */}
+                  <button
+                    type="button"
+                    onClick={handleSaveProject}
+                    disabled={isSaving}
+                    className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground disabled:opacity-50"
+                    title="Salvar"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Save className="h-3.5 w-3.5" />
+                    )}
+                    <span>Salvar</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => labelPreviewRef.current?.exportDocx()}
+                    className="glass-nav-btn flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/80 hover:text-foreground"
+                    title="Exportar DOCX"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>DOCX</span>
+                  </button>
+                  {selectedProjectId && (
+                    <button
+                      type="button"
+                      onClick={() => setIsDeleteModalOpen(true)}
+                      className="glass-nav-btn rounded-lg p-1.5 text-destructive/70 hover:text-destructive"
+                      title="Excluir projeto"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  <div className="w-px h-5 bg-foreground/15 mx-0.5" />
+
                   {/* Undo/Redo */}
                   <button
                     type="button"

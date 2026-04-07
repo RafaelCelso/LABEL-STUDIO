@@ -293,12 +293,12 @@ export const SignInComponent = ({
     const { error } = await authClient.signIn.email({
       email: e,
       password: p,
-      callbackURL: origin ? `${origin}/` : "/",
+      callbackURL: origin ? `${origin}/app` : "/app",
     });
     if (error) {
       throw new Error(getAuthClientErrorMessage(error));
     }
-    router.push("/");
+    router.push("/app");
     router.refresh();
   };
 

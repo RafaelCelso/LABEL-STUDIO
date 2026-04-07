@@ -1143,9 +1143,9 @@ export function NewProjectWizard({
         ) : null}
 
         {section.id === "preview" ? (
-          <div className="grid gap-8 lg:grid-cols-2 items-start">
+          <div className="flex flex-col gap-6">
             <div className={STEP_CARD}>
-              <div className="space-y-5">
+              <div className="grid gap-5 sm:grid-cols-2 sm:items-end">
                 <div>
                   <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                     Nome do projeto
@@ -1179,7 +1179,7 @@ export function NewProjectWizard({
                 </div>
                 <div className="rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm leading-relaxed text-muted-foreground">
                   Se estiver tudo certo, clique em{" "}
-                  <strong className="text-foreground">Continuar/Editrar</strong>{" "}
+                  <strong className="text-foreground">Continuar/Editar</strong>{" "}
                   para abrir o editor completo.
                 </div>
               </div>

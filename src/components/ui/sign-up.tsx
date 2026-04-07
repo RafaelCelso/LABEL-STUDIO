@@ -413,7 +413,7 @@ export const AuthComponent = ({
         email,
         name: nameFromEmail,
         password,
-        callbackURL: origin ? `${origin}/` : "/",
+        callbackURL: origin ? `${origin}/app` : "/app",
       });
       if (error) {
         throw new Error(getAuthClientErrorMessage(error));
@@ -421,7 +421,7 @@ export const AuthComponent = ({
       fireSideCanons();
       setModalStatus("success");
       setTimeout(() => {
-        router.push("/");
+        router.push("/app");
         router.refresh();
       }, 1800);
     } catch (err: unknown) {
