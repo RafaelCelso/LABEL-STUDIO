@@ -159,22 +159,11 @@ export function Home({
                 </div>
               </div>
             ) : (
-              <div className="relative pb-1 pt-2">
-                <div
-                  className="auth-frost-panel pointer-events-none absolute inset-x-4 bottom-2 top-11 rounded-[1.5rem] opacity-55"
-                  aria-hidden
-                />
-                <div
-                  className="auth-frost-panel pointer-events-none absolute inset-x-2.5 bottom-1 top-7 rounded-[1.55rem] opacity-70"
-                  aria-hidden
-                />
-
-                <div className="auth-frost-panel relative rounded-[1.65rem] px-10 py-14 text-center">
-                  <FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                  <p className="mx-auto max-w-xs text-sm font-medium leading-relaxed text-muted-foreground">
-                    Nenhum projeto ainda. Crie o seu primeiro!
-                  </p>
-                </div>
+              <div className="auth-frost-panel rounded-[1.65rem] px-10 py-14 text-center">
+                <FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                <p className="mx-auto max-w-xs text-sm font-medium leading-relaxed text-muted-foreground">
+                  Nenhum projeto ainda. Crie o seu primeiro!
+                </p>
               </div>
             )}
           </div>

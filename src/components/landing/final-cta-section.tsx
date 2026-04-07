@@ -8,13 +8,14 @@ export function FinalCtaSection() {
 
   return (
     <section className="relative overflow-hidden py-24 px-4">
-      {/* Dark nebula accent for this section */}
+      {/* Glow accent coerente com o shader do hero */}
       <div
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 80% 60% at 50% 50%, oklch(0.22 0.05 265 / 0.35) 0%, transparent 70%),
-            radial-gradient(ellipse 50% 40% at 20% 80%, oklch(0.20 0.04 300 / 0.20) 0%, transparent 60%)
+            radial-gradient(ellipse 70% 60% at 50% 50%, rgba(100, 20, 60, 0.25) 0%, transparent 65%),
+            radial-gradient(ellipse 40% 35% at 20% 80%, rgba(20, 60, 160, 0.15) 0%, transparent 55%),
+            radial-gradient(ellipse 35% 30% at 80% 20%, rgba(20, 120, 60, 0.12) 0%, transparent 50%)
           `,
         }}
         aria-hidden

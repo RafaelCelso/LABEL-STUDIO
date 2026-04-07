@@ -73,13 +73,13 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <button
               onClick={() => router.push("/auth/sign-in")}
-              className="text-sm px-4 py-1.5 rounded-full text-foreground/80 hover:text-foreground transition-colors duration-200"
+              className="cursor-pointer text-sm px-4 py-1.5 rounded-full text-foreground/80 hover:text-foreground transition-colors duration-200"
             >
               Entrar
             </button>
             <button
               onClick={() => router.push("/auth/sign-up")}
-              className="text-sm px-4 py-1.5 rounded-full auth-frost-panel hover:opacity-90 transition-opacity duration-200 text-foreground font-medium"
+              className="cursor-pointer text-sm px-4 py-1.5 rounded-full auth-frost-panel hover:opacity-90 transition-opacity duration-200 text-foreground font-medium"
             >
               Criar conta
             </button>
@@ -122,7 +122,7 @@ export function Navbar() {
                 setOpen(false);
                 router.push("/auth/sign-in");
               }}
-              className="w-full text-sm py-2.5 rounded-full text-foreground/80 border border-foreground/15 hover:border-foreground/30 transition-colors"
+              className="cursor-pointer w-full text-sm py-2.5 rounded-full text-foreground/80 border border-foreground/15 hover:border-foreground/30 transition-colors"
             >
               Entrar
             </button>
@@ -131,7 +131,7 @@ export function Navbar() {
                 setOpen(false);
                 router.push("/auth/sign-up");
               }}
-              className="w-full text-sm py-2.5 rounded-full auth-cta-glow bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-medium"
+              className="cursor-pointer w-full text-sm py-2.5 rounded-full auth-cta-glow bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-medium"
             >
               Criar conta
             </button>

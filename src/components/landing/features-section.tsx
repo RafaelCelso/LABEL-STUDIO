@@ -2,6 +2,7 @@
 
 import { SectionWrapper } from "@/components/landing/section-wrapper";
 import { ScrollReveal } from "@/components/landing/scroll-reveal";
+import { GlowCard } from "@/components/ui/spotlight-card";
 
 const FEATURES = [
   {
@@ -142,7 +143,11 @@ export function FeaturesSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {FEATURES.map((feature, index) => (
           <ScrollReveal key={feature.title} delay={0.05 * index}>
-            <div className="auth-frost-panel p-6 flex flex-col gap-4 h-full">
+            <GlowCard
+              customSize
+              glowColor="blue"
+              className="w-full p-6 flex flex-col gap-4 h-full aspect-auto"
+            >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
                 {feature.icon}
               </div>
@@ -154,7 +159,7 @@ export function FeaturesSection() {
                   {feature.description}
                 </p>
               </div>
-            </div>
+            </GlowCard>
           </ScrollReveal>
         ))}
       </div>
