@@ -90,6 +90,7 @@ const GlowCard: React.FC<GlowCardProps> = ({
 
   useEffect(() => {
     const syncPointer = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
       const { clientX: x, clientY: y } = e;
       if (cardRef.current) {
         cardRef.current.style.setProperty("--x", x.toFixed(2));
@@ -141,7 +142,6 @@ const GlowCard: React.FC<GlowCardProps> = ({
       backgroundAttachment: "fixed",
       border: "var(--border-size) solid var(--backup-border)",
       position: "relative",
-      touchAction: "none",
     };
 
     if (width !== undefined) {
